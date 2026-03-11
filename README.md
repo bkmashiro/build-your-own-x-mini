@@ -15,6 +15,7 @@ Not production code. Enough to understand *how it works*.
 |---|---------|-------|--------------|--------|
 | 01 | [mini-redis](./projects/mini-redis/) | ~180 | RESP2 protocol, asyncio, TTL | ✅ |
 | 02 | [mini-git](./02-mini-git/) | ~190 | SHA1 hashing, zlib, content-addressable storage | ✅ |
+| 03 | [mini-http](./03-mini-http/) | ~190 | HTTP/1.1 parsing, socket API, routing, threading | ✅ |
 
 ## Philosophy
 
