@@ -1,36 +1,50 @@
-# build-your-own-x-mini
+<div align="center">
 
-[![GitHub stars](https://img.shields.io/github/stars/bkmashiro/build-your-own-x-mini?style=social)](https://github.com/bkmashiro/build-your-own-x-mini)
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+# 🔧 build-your-own-x-mini
 
-> Minimal, readable implementations of real systems — each under 200 lines.
+**Minimal, readable implementations of real systems — each under 200 lines.**
 
-**[⭐ Star on GitHub](https://github.com/bkmashiro/build-your-own-x-mini)** if you find this useful!
+[![GitHub stars](https://img.shields.io/github/stars/bkmashiro/build-your-own-x-mini?style=for-the-badge&logo=github&color=FFD700)](https://github.com/bkmashiro/build-your-own-x-mini)
+[![MIT License](https://img.shields.io/badge/license-MIT-22c55e?style=for-the-badge)](LICENSE)
 
-Not production code. Enough to understand *how it works*.
+**English** | [中文](README.zh.md)
 
-## Projects
+> Not production code. Enough to understand *how it works*.  
+> New project every Wednesday, auto-generated.
 
-| # | Project | Lines | Key Concepts | Status |
-|---|---------|-------|--------------|--------|
-| 01 | [mini-redis](./projects/mini-redis/) | ~180 | RESP2 protocol, asyncio, TTL | ✅ |
-| 02 | [mini-git](./02-mini-git/) | ~190 | SHA1 hashing, zlib, content-addressable storage | ✅ |
-| 03 | [mini-http](./03-mini-http/) | ~190 | HTTP/1.1 parsing, socket API, routing, threading | ✅ |
+</div>
 
-## Philosophy
+---
+
+## 📦 Projects
+
+| # | Project | Lines | Key Concepts | Analysis |
+|:--|:--------|:------|:-------------|:---------|
+| 01 | [mini-redis](./projects/mini-redis/README.md) ([中文](./projects/mini-redis/README.zh.md)) | ~180 | RESP2 protocol, asyncio, TTL | ✅ |
+| 02 | [mini-git](./02-mini-git/README.md) ([中文](./02-mini-git/README.zh.md)) | ~190 | SHA1 hashing, zlib, content-addressable storage | ✅ |
+| 03 | [mini-http](./03-mini-http/README.md) ([中文](./03-mini-http/README.zh.md)) | ~190 | HTTP/1.1 parsing, socket API, routing, threading | ✅ |
+
+---
+
+## 🎯 Philosophy
 
 - One file, one concept
 - Inline comments explain every non-obvious decision
 - Runnable demo included
-- Bilingual README (English + 中文)
+- **Bilingual analysis** — full English write-up + 完整中文解析
 
-## Roadmap
+---
 
-- mini-redis — RESP protocol, SET/GET/EXPIRE, persistence
-- mini-git — content-addressable storage, commits, branches
-- mini-http — HTTP/1.1, routing, chunked encoding
-- mini-lsm — memtable, SSTable, compaction
-- mini-raft — leader election, log replication
-- mini-regex — NFA, Thompson's construction
-- mini-vm — stack VM, bytecode interpreter
-- mini-malloc — free list, coalescing, slab allocator
+## 🗺️ Roadmap
+
+- [ ] mini-lsm — LSM tree, memtable, SSTables
+- [ ] mini-raft — leader election, log replication
+- [ ] mini-regex — NFA construction, backtracking
+- [ ] mini-vm — bytecode interpreter, stack machine
+- [ ] mini-malloc — buddy allocator, free list
+
+---
+
+## 📄 License
+
+MIT © [bkmashiro](https://github.com/bkmashiro)

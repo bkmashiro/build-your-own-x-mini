@@ -1,0 +1,50 @@
+<div align="center">
+
+# 🔧 build-your-own-x-mini
+
+**用不到 200 行代码实现真实系统的核心 — 简洁可读。**
+
+[![GitHub stars](https://img.shields.io/github/stars/bkmashiro/build-your-own-x-mini?style=for-the-badge&logo=github&color=FFD700)](https://github.com/bkmashiro/build-your-own-x-mini)
+[![MIT License](https://img.shields.io/badge/许可证-MIT-22c55e?style=for-the-badge)](LICENSE)
+
+[English](README.md) | **中文**
+
+> 不是生产代码，但足以理解它*是怎么工作的*。  
+> 每周三自动新增一个项目。
+
+</div>
+
+---
+
+## 📦 项目列表
+
+| # | 项目 | 代码行数 | 核心概念 | 解析 |
+|:--|:-----|:---------|:---------|:-----|
+| 01 | [mini-redis（中文）](./projects/mini-redis/README.zh.md) ([English](./projects/mini-redis/README.md)) | ~180 | RESP2 协议、asyncio、TTL | ✅ |
+| 02 | [mini-git（中文）](./02-mini-git/README.zh.md) ([English](./02-mini-git/README.md)) | ~190 | SHA1 哈希、zlib、内容寻址存储 | ✅ |
+| 03 | [mini-http（中文）](./03-mini-http/README.zh.md) ([English](./03-mini-http/README.md)) | ~190 | HTTP/1.1 解析、socket API、路由、线程 | ✅ |
+
+---
+
+## 🎯 理念
+
+- 一个文件，一个概念
+- 每个不显而易见的决策都有内联注释说明
+- 包含可运行的演示
+- **中英双语解析** — 完整英文解析 + 完整中文解析（非摘要）
+
+---
+
+## 🗺️ 路线图
+
+- [ ] mini-lsm — LSM 树、内存表、SSTables
+- [ ] mini-raft — 领导者选举、日志复制
+- [ ] mini-regex — NFA 构建、回溯
+- [ ] mini-vm — 字节码解释器、栈式虚拟机
+- [ ] mini-malloc — 伙伴分配器、空闲链表
+
+---
+
+## 📄 许可证
+
+MIT © [bkmashiro](https://github.com/bkmashiro)
