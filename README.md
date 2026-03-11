@@ -8,7 +8,7 @@ Not production code. Enough to understand *how it works*.
 
 | # | Project | Lines | Key Concepts | Status |
 |---|---------|-------|--------------|--------|
-| 01 | [mini-redis](./projects/mini-redis/) | ~180 | RESP protocol, key-value store, TTL | ✅ |
+| 01 | [mini-redis](./projects/mini-redis/) | ~180 | RESP2 protocol, asyncio, TTL | ✅ |
 
 ## Philosophy
 
