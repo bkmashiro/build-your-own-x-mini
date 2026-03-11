@@ -14,6 +14,7 @@ Not production code. Enough to understand *how it works*.
 | # | Project | Lines | Key Concepts | Status |
 |---|---------|-------|--------------|--------|
 | 01 | [mini-redis](./projects/mini-redis/) | ~180 | RESP2 protocol, asyncio, TTL | ✅ |
+| 02 | [mini-git](./02-mini-git/) | ~190 | SHA1 hashing, zlib, content-addressable storage | ✅ |
 
 ## Philosophy
 
