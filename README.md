@@ -1,6 +1,11 @@
 # build-your-own-x-mini
 
+[![GitHub stars](https://img.shields.io/github/stars/bkmashiro/build-your-own-x-mini?style=social)](https://github.com/bkmashiro/build-your-own-x-mini)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 > Minimal, readable implementations of real systems — each under 200 lines.
+
+**[⭐ Star on GitHub](https://github.com/bkmashiro/build-your-own-x-mini)** if you find this useful!
 
 Not production code. Enough to understand *how it works*.
 
