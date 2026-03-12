@@ -25,6 +25,7 @@
 | 03 | [mini-http](./03-mini-http/README.md) ([中文](./03-mini-http/README.zh.md)) | ~190 | HTTP/1.1 parsing, socket API, routing, threading | ✅ |
 | 04 | [mini-lsm](./04-mini-lsm/README.md) ([中文](./04-mini-lsm/README.zh.md)) | ~180 | MemTable, SSTables, point reads, compaction | ✅ |
 | 05 | [mini-raft](./05-mini-raft/README.md) ([中文](./05-mini-raft/README.zh.md)) | ~290 | leader election, terms, log replication, majority commit | ✅ |
+| 06 | [mini-regex](./06-mini-regex/README.md) ([中文](./06-mini-regex/README.zh.md)) | ~168 | NFA construction, Thompson's algorithm, epsilon-closure, backtracking | ✅ |
 
 ---
 
@@ -41,7 +42,7 @@
 
 - [x] mini-lsm — LSM tree, memtable, SSTables
 - [x] mini-raft — leader election, log replication
-- [ ] mini-regex — NFA construction, backtracking
+- [x] mini-regex — NFA construction, backtracking
 - [ ] mini-vm — bytecode interpreter, stack machine
 - [ ] mini-malloc — buddy allocator, free list
 - [ ] mini-tls — record layer, handshake, certificates

@@ -8,7 +8,7 @@
 - [ ] 03: mini-http — HTTP/1.1 parser, routing, chunked encoding, keep-alive
 - [ ] 04: mini-lsm — memtable, SSTable, Bloom filter, compaction
 - [ ] 05: mini-raft — leader election, log replication, state machine
-- [ ] 06: mini-regex — NFA construction, Thompson's algorithm, backtracking
+- [x] 06: mini-regex — NFA construction, Thompson's algorithm, backtracking
 - [ ] 07: mini-vm — stack VM, bytecode compiler, simple garbage collector
 - [ ] 08: mini-malloc — free list, first-fit, coalescing, slab allocator
 - [ ] 09: mini-tls — TLS 1.3 handshake, AES-GCM, certificate parsing
