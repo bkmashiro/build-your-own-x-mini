@@ -26,6 +26,7 @@
 | 04 | [mini-lsm（中文）](./04-mini-lsm/README.zh.md) ([English](./04-mini-lsm/README.md)) | ~180 | MemTable、SSTable、点查询、Compaction | ✅ |
 | 05 | [mini-raft（中文）](./05-mini-raft/README.zh.md) ([English](./05-mini-raft/README.md)) | ~290 | 选主、term、日志复制、多数提交 | ✅ |
 | 06 | [mini-regex（中文）](./06-mini-regex/README.zh.md) ([English](./06-mini-regex/README.md)) | ~168 | NFA 构建、Thompson 算法、epsilon-closure、回溯 | ✅ |
+| 07 | [mini-vm（中文）](./07-mini-vm/README.zh.md) ([English](./07-mini-vm/README.md)) | ~160 | 栈式字节码、编译器、调用帧、反汇编 | ✅ |
 
 ---
 
@@ -43,7 +44,7 @@
 - [x] mini-lsm — LSM 树、内存表、SSTables
 - [x] mini-raft — 领导者选举、日志复制
 - [x] mini-regex — NFA 构建、回溯
-- [ ] mini-vm — 字节码解释器、栈式虚拟机
+- [x] mini-vm — 字节码解释器、栈式虚拟机
 - [ ] mini-malloc — 伙伴分配器、空闲链表
 - [ ] mini-tls — Record Layer、握手、证书
 - [ ] mini-db — SQL 解析、执行计划、存储
