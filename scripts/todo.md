@@ -12,4 +12,4 @@
 - [x] 07: mini-vm — stack VM, bytecode compiler, local variable frames
 - [x] 08: mini-malloc — free list, first-fit, coalescing, realloc
 - [x] 09: mini-tls — TLS 1.3 handshake, AES-GCM, certificate parsing
-- [ ] 10: mini-db — B-tree storage, SQL parser, query execution
+- [x] 10: mini-db — B-tree storage, SQL parser, query execution
