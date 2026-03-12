@@ -28,6 +28,7 @@
 | 06 | [mini-regex](./06-mini-regex/README.md) ([中文](./06-mini-regex/README.zh.md)) | ~168 | NFA construction, Thompson's algorithm, epsilon-closure, backtracking | ✅ |
 | 07 | [mini-vm](./07-mini-vm/README.md) ([中文](./07-mini-vm/README.zh.md)) | ~160 | stack bytecode, compiler, call frames, disassembly | ✅ |
 | 08 | [mini-malloc](./08-mini-malloc/README.md) ([中文](./08-mini-malloc/README.zh.md)) | ~110 | free list, first-fit, realloc, coalescing | ✅ |
+| 09 | [mini-tls](./09-mini-tls/README.md) ([中文](./09-mini-tls/README.zh.md)) | ~165 | TLS 1.3 handshake, key schedule, AES-GCM, certificates | ✅ |
 
 ---
 
@@ -47,7 +48,7 @@
 - [x] mini-regex — NFA construction, backtracking
 - [x] mini-vm — bytecode interpreter, stack machine
 - [x] mini-malloc — free list, first-fit allocator
-- [ ] mini-tls — record layer, handshake, certificates
+- [x] mini-tls — record layer, handshake, certificates
 - [ ] mini-db — SQL parsing, planning, storage
 
 ---

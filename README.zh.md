@@ -28,6 +28,7 @@
 | 06 | [mini-regex（中文）](./06-mini-regex/README.zh.md) ([English](./06-mini-regex/README.md)) | ~168 | NFA 构建、Thompson 算法、epsilon-closure、回溯 | ✅ |
 | 07 | [mini-vm（中文）](./07-mini-vm/README.zh.md) ([English](./07-mini-vm/README.md)) | ~160 | 栈式字节码、编译器、调用帧、反汇编 | ✅ |
 | 08 | [mini-malloc（中文）](./08-mini-malloc/README.zh.md) ([English](./08-mini-malloc/README.md)) | ~110 | 空闲链表、first-fit、realloc、合并 | ✅ |
+| 09 | [mini-tls（中文）](./09-mini-tls/README.zh.md) ([English](./09-mini-tls/README.md)) | ~165 | TLS 1.3 握手、key schedule、AES-GCM、证书结构 | ✅ |
 
 ---
 
@@ -47,7 +48,7 @@
 - [x] mini-regex — NFA 构建、回溯
 - [x] mini-vm — 字节码解释器、栈式虚拟机
 - [x] mini-malloc — 空闲链表、first-fit 分配器
-- [ ] mini-tls — Record Layer、握手、证书
+- [x] mini-tls — Record Layer、握手、证书
 - [ ] mini-db — SQL 解析、执行计划、存储
 
 ---
