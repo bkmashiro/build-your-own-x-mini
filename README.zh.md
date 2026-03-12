@@ -23,6 +23,8 @@
 | 01 | [mini-redis（中文）](./projects/mini-redis/README.zh.md) ([English](./projects/mini-redis/README.md)) | ~180 | RESP2 协议、asyncio、TTL | ✅ |
 | 02 | [mini-git（中文）](./02-mini-git/README.zh.md) ([English](./02-mini-git/README.md)) | ~190 | SHA1 哈希、zlib、内容寻址存储 | ✅ |
 | 03 | [mini-http（中文）](./03-mini-http/README.zh.md) ([English](./03-mini-http/README.md)) | ~190 | HTTP/1.1 解析、socket API、路由、线程 | ✅ |
+| 04 | [mini-lsm（中文）](./04-mini-lsm/README.zh.md) ([English](./04-mini-lsm/README.md)) | ~180 | MemTable、SSTable、点查询、Compaction | ✅ |
+| 05 | [mini-raft（中文）](./05-mini-raft/README.zh.md) ([English](./05-mini-raft/README.md)) | ~290 | 选主、term、日志复制、多数提交 | ✅ |
 
 ---
 
@@ -37,11 +39,13 @@
 
 ## 🗺️ 路线图
 
-- [ ] mini-lsm — LSM 树、内存表、SSTables
-- [ ] mini-raft — 领导者选举、日志复制
+- [x] mini-lsm — LSM 树、内存表、SSTables
+- [x] mini-raft — 领导者选举、日志复制
 - [ ] mini-regex — NFA 构建、回溯
 - [ ] mini-vm — 字节码解释器、栈式虚拟机
 - [ ] mini-malloc — 伙伴分配器、空闲链表
+- [ ] mini-tls — Record Layer、握手、证书
+- [ ] mini-db — SQL 解析、执行计划、存储
 
 ---
 

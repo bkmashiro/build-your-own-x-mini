@@ -23,6 +23,8 @@
 | 01 | [mini-redis](./projects/mini-redis/README.md) ([中文](./projects/mini-redis/README.zh.md)) | ~180 | RESP2 protocol, asyncio, TTL | ✅ |
 | 02 | [mini-git](./02-mini-git/README.md) ([中文](./02-mini-git/README.zh.md)) | ~190 | SHA1 hashing, zlib, content-addressable storage | ✅ |
 | 03 | [mini-http](./03-mini-http/README.md) ([中文](./03-mini-http/README.zh.md)) | ~190 | HTTP/1.1 parsing, socket API, routing, threading | ✅ |
+| 04 | [mini-lsm](./04-mini-lsm/README.md) ([中文](./04-mini-lsm/README.zh.md)) | ~180 | MemTable, SSTables, point reads, compaction | ✅ |
+| 05 | [mini-raft](./05-mini-raft/README.md) ([中文](./05-mini-raft/README.zh.md)) | ~290 | leader election, terms, log replication, majority commit | ✅ |
 
 ---
 
@@ -37,11 +39,13 @@
 
 ## 🗺️ Roadmap
 
-- [ ] mini-lsm — LSM tree, memtable, SSTables
-- [ ] mini-raft — leader election, log replication
+- [x] mini-lsm — LSM tree, memtable, SSTables
+- [x] mini-raft — leader election, log replication
 - [ ] mini-regex — NFA construction, backtracking
 - [ ] mini-vm — bytecode interpreter, stack machine
 - [ ] mini-malloc — buddy allocator, free list
+- [ ] mini-tls — record layer, handshake, certificates
+- [ ] mini-db — SQL parsing, planning, storage
 
 ---
 
