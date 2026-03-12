@@ -10,6 +10,6 @@
 - [x] 05: mini-raft — leader election, log replication, state machine
 - [x] 06: mini-regex — NFA construction, Thompson's algorithm, backtracking
 - [x] 07: mini-vm — stack VM, bytecode compiler, local variable frames
-- [ ] 08: mini-malloc — free list, first-fit, coalescing, slab allocator
+- [x] 08: mini-malloc — free list, first-fit, coalescing, realloc
 - [ ] 09: mini-tls — TLS 1.3 handshake, AES-GCM, certificate parsing
 - [ ] 10: mini-db — B-tree storage, SQL parser, query execution
