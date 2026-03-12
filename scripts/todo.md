@@ -4,10 +4,10 @@
 - [x] 01: mini-redis — RESP2 protocol, SET/GET/EXPIRE, asyncio
 
 ## Upcoming
-- [ ] 02: mini-git — content-addressable storage, commits, branches, diff
-- [ ] 03: mini-http — HTTP/1.1 parser, routing, chunked encoding, keep-alive
-- [ ] 04: mini-lsm — memtable, SSTable, Bloom filter, compaction
-- [ ] 05: mini-raft — leader election, log replication, state machine
+- [x] 02: mini-git — content-addressable storage, commits, branches, diff
+- [x] 03: mini-http — HTTP/1.1 parser, routing, chunked encoding, keep-alive
+- [x] 04: mini-lsm — memtable, SSTable, Bloom filter, compaction
+- [x] 05: mini-raft — leader election, log replication, state machine
 - [x] 06: mini-regex — NFA construction, Thompson's algorithm, backtracking
 - [ ] 07: mini-vm — stack VM, bytecode compiler, simple garbage collector
 - [ ] 08: mini-malloc — free list, first-fit, coalescing, slab allocator
