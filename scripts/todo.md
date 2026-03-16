@@ -2,8 +2,6 @@
 
 ## Done
 - [x] 01: mini-redis — RESP2 protocol, SET/GET/EXPIRE, asyncio
-
-## Upcoming
 - [x] 02: mini-git — content-addressable storage, commits, branches, diff
 - [x] 03: mini-http — HTTP/1.1 parser, routing, chunked encoding, keep-alive
 - [x] 04: mini-lsm — memtable, SSTable, Bloom filter, compaction
@@ -13,3 +11,26 @@
 - [x] 08: mini-malloc — free list, first-fit, coalescing, realloc
 - [x] 09: mini-tls — TLS 1.3 handshake, AES-GCM, certificate parsing
 - [x] 10: mini-db — B-tree storage, SQL parser, query execution
+
+## Upcoming
+
+- [ ] 11: mini-shell — tokenizer, fork/exec, pipes, redirects, builtins (cd/exit)
+- [ ] 12: mini-neural-net — forward pass, backprop, SGD, XOR demo from scratch
+- [ ] 13: mini-docker — Linux namespaces, cgroups, overlay FS, image layers
+- [ ] 14: mini-physics — rigid body, AABB collision, impulse resolution, 2D sim
+- [ ] 15: mini-lisp — tokenizer, reader, eval, environment, closures, TCO
+- [ ] 16: mini-browser — HTML tokenizer, CSS box model, layout, paint to terminal
+- [ ] 17: mini-bitcoin — SHA256, Merkle tree, PoW mining, chain validation
+- [ ] 18: mini-torrent — DHT, peer wire protocol, piece selection, seeding
+- [ ] 19: mini-ray-tracer — ray-sphere intersection, BVH, shadows, reflections
+- [ ] 20: mini-search — inverted index, TF-IDF, BM25, query ranking
+- [ ] 21: mini-os — bootloader, interrupts, memory paging, simple scheduler
+- [ ] 22: mini-riscv — RISC-V decoder, ALU, pipeline stages, branch predictor
+- [ ] 23: mini-react — virtual DOM, reconciler, fiber, hooks (useState/useEffect)
+- [ ] 24: mini-game-engine — ECS, scene graph, input, fixed timestep, AABB
+- [ ] 25: mini-voxel — chunk system, greedy meshing, camera, OpenGL render
+
+## Notes
+- Each project: one Python file < 200 lines + demo + bilingual README
+- Auto-generated every Wednesday by cron job
+- Model: claude-opus-4-5 (complex systems design)
