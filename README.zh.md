@@ -30,6 +30,7 @@
 | 08 | [mini-malloc（中文）](./08-mini-malloc/README.zh.md) ([English](./08-mini-malloc/README.md)) | ~110 | 空闲链表、first-fit、realloc、合并 | ✅ |
 | 09 | [mini-tls（中文）](./09-mini-tls/README.zh.md) ([English](./09-mini-tls/README.md)) | ~165 | TLS 1.3 握手、key schedule、AES-GCM、证书结构 | ✅ |
 | 10 | [mini-db（中文）](./10-mini-db/README.zh.md) ([English](./10-mini-db/README.md)) | ~172 | SQL 解析、WHERE 执行、有序索引、内存表 | ✅ |
+| 11 | [mini-shell（中文）](./projects/11-mini-shell/README.zh.md) ([English](./projects/11-mini-shell/README.md)) | ~190 | 词法分析、fork/exec、管道、重定向、内置命令 | ✅ |
 
 ---
 

@@ -14,7 +14,7 @@
 
 ## Upcoming
 
-- [ ] 11: mini-shell — tokenizer, fork/exec, pipes, redirects, builtins (cd/exit)
+- [x] 11: mini-shell — tokenizer, fork/exec, pipes, redirects, builtins (cd/exit)
 - [ ] 12: mini-neural-net — forward pass, backprop, SGD, XOR demo from scratch
 - [ ] 13: mini-docker — Linux namespaces, cgroups, overlay FS, image layers
 - [ ] 14: mini-physics — rigid body, AABB collision, impulse resolution, 2D sim
