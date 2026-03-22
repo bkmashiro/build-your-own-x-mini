@@ -1,0 +1,9 @@
+{
+  "name": "24-mini-signals",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --experimental-strip-types test/*.test.ts",
+    "demo": "node --experimental-strip-types demo.ts"
+  }
+}
