@@ -1,0 +1,10 @@
+{
+  "name": "02-mini-http-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "demo": "node --experimental-strip-types demo.ts",
+    "start": "node --experimental-strip-types demo.ts"
+  }
+}
