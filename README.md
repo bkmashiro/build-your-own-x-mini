@@ -20,7 +20,7 @@
 
 | # | Project | Lines | Key Concepts | Analysis |
 |:--|:--------|:------|:-------------|:---------|
-| 01 | [mini-redis](./projects/mini-redis/README.md) ([中文](./projects/mini-redis/README.zh.md)) | ~180 | RESP2 protocol, asyncio, TTL | ✅ |
+| 01 | [mini-redis](./01-mini-redis/README.md) ([中文](./01-mini-redis/README.zh.md)) | ~180 | RESP2 protocol, asyncio, TTL | ✅ |
 | 02 | [mini-git](./02-mini-git/README.md) ([中文](./02-mini-git/README.zh.md)) | ~190 | SHA1 hashing, zlib, content-addressable storage | ✅ |
 | 03 | [mini-http](./03-mini-http/README.md) ([中文](./03-mini-http/README.zh.md)) | ~190 | HTTP/1.1 parsing, socket API, routing, threading | ✅ |
 | 04 | [mini-lsm](./04-mini-lsm/README.md) ([中文](./04-mini-lsm/README.zh.md)) | ~180 | MemTable, SSTables, point reads, compaction | ✅ |
@@ -30,7 +30,7 @@
 | 08 | [mini-malloc](./08-mini-malloc/README.md) ([中文](./08-mini-malloc/README.zh.md)) | ~110 | free list, first-fit, realloc, coalescing | ✅ |
 | 09 | [mini-tls](./09-mini-tls/README.md) ([中文](./09-mini-tls/README.zh.md)) | ~165 | TLS 1.3 handshake, key schedule, AES-GCM, certificates | ✅ |
 | 10 | [mini-db](./10-mini-db/README.md) ([中文](./10-mini-db/README.zh.md)) | ~172 | SQL parser, WHERE executor, sorted index, in-memory tables | ✅ |
-| 11 | [mini-shell](./projects/11-mini-shell/README.md) ([中文](./projects/11-mini-shell/README.zh.md)) | ~190 | tokenizer, fork/exec, pipes, redirects, builtins | ✅ |
+| 11 | [mini-shell](./11-mini-shell/README.md) ([中文](./11-mini-shell/README.zh.md)) | ~190 | tokenizer, fork/exec, pipes, redirects, builtins | ✅ |
 
 ---
 
@@ -52,6 +52,15 @@
 - [x] mini-malloc — free list, first-fit allocator
 - [x] mini-tls — record layer, handshake, certificates
 - [x] mini-db — SQL parsing, planning, storage
+- [ ] 12-mini-json-parser — recursive descent parser, AST, IEEE-754
+- [ ] 13-mini-lru-cache — HashMap + doubly linked list, O(1) get/put
+- [ ] 14-mini-event-loop — single-threaded async, epoll/kqueue, microtask queue
+- [ ] 15-mini-actor — actor model, message passing, supervision tree
+- [ ] 16-mini-rpc — binary protocol, serialization, connection pooling
+- [ ] 17-mini-bloom-filter — probabilistic set, false positive rate, bit array
+- [ ] 18-mini-b-tree — balanced tree, node split/merge, range queries
+- [ ] 19-mini-wal — write-ahead log, crash recovery, log replay
+- [ ] 20-mini-pubsub — publish-subscribe, topic routing, backpressure
 
 ---
 

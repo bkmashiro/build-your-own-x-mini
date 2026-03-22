@@ -20,7 +20,7 @@
 
 | # | 项目 | 代码行数 | 核心概念 | 解析 |
 |:--|:-----|:---------|:---------|:-----|
-| 01 | [mini-redis（中文）](./projects/mini-redis/README.zh.md) ([English](./projects/mini-redis/README.md)) | ~180 | RESP2 协议、asyncio、TTL | ✅ |
+| 01 | [mini-redis（中文）](./01-mini-redis/README.zh.md) ([English](./01-mini-redis/README.md)) | ~180 | RESP2 协议、asyncio、TTL | ✅ |
 | 02 | [mini-git（中文）](./02-mini-git/README.zh.md) ([English](./02-mini-git/README.md)) | ~190 | SHA1 哈希、zlib、内容寻址存储 | ✅ |
 | 03 | [mini-http（中文）](./03-mini-http/README.zh.md) ([English](./03-mini-http/README.md)) | ~190 | HTTP/1.1 解析、socket API、路由、线程 | ✅ |
 | 04 | [mini-lsm（中文）](./04-mini-lsm/README.zh.md) ([English](./04-mini-lsm/README.md)) | ~180 | MemTable、SSTable、点查询、Compaction | ✅ |
@@ -30,7 +30,7 @@
 | 08 | [mini-malloc（中文）](./08-mini-malloc/README.zh.md) ([English](./08-mini-malloc/README.md)) | ~110 | 空闲链表、first-fit、realloc、合并 | ✅ |
 | 09 | [mini-tls（中文）](./09-mini-tls/README.zh.md) ([English](./09-mini-tls/README.md)) | ~165 | TLS 1.3 握手、key schedule、AES-GCM、证书结构 | ✅ |
 | 10 | [mini-db（中文）](./10-mini-db/README.zh.md) ([English](./10-mini-db/README.md)) | ~172 | SQL 解析、WHERE 执行、有序索引、内存表 | ✅ |
-| 11 | [mini-shell（中文）](./projects/11-mini-shell/README.zh.md) ([English](./projects/11-mini-shell/README.md)) | ~190 | 词法分析、fork/exec、管道、重定向、内置命令 | ✅ |
+| 11 | [mini-shell（中文）](./11-mini-shell/README.zh.md) ([English](./11-mini-shell/README.md)) | ~190 | 词法分析、fork/exec、管道、重定向、内置命令 | ✅ |
 
 ---
 
@@ -52,6 +52,15 @@
 - [x] mini-malloc — 空闲链表、first-fit 分配器
 - [x] mini-tls — Record Layer、握手、证书
 - [x] mini-db — SQL 解析、执行计划、存储
+- [ ] 12-mini-json-parser — 递归下降解析器、AST、IEEE-754
+- [ ] 13-mini-lru-cache — HashMap + 双向链表、O(1) get/put
+- [ ] 14-mini-event-loop — 单线程异步、epoll/kqueue、微任务队列
+- [ ] 15-mini-actor — Actor 模型、消息传递、监督树
+- [ ] 16-mini-rpc — 二进制协议、序列化、连接池
+- [ ] 17-mini-bloom-filter — 概率集合、误判率、位数组
+- [ ] 18-mini-b-tree — 平衡树、节点分裂/合并、范围查询
+- [ ] 19-mini-wal — 预写日志、崩溃恢复、日志回放
+- [ ] 20-mini-pubsub — 发布-订阅、主题路由、背压控制
 
 ---
 
