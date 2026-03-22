@@ -1,22 +1,12 @@
 """
-mini-redis — A minimal Redis server in < 200 lines of Python.
+mini-redis — A minimal Redis server in Python.
 
 Implements:
   - RESP2 protocol (serialization/deserialization)
-  - Commands: PING, ECHO, SET, GET, DEL, EXPIRE, TTL, KEYS, FLUSHDB
-  - In-memory store with lazy expiry (check TTL on access)
-  - asyncio TCP server — real redis-cli compatible
-
-Usage:
-  python mini_redis.py            # starts on 127.0.0.1:6379
-  python mini_redis.py --port 6380
-
-Test with redis-cli:
-  redis-cli ping
-  redis-cli set foo bar
-  redis-cli get foo
-  redis-cli set tmp 42 ex 5
-  redis-cli ttl tmp
+  - String, List, Hash data types
+  - TTL with lazy expiry
+  - Atomic counters and multiple logical DBs
+  - asyncio TCP server — redis-cli compatible
 """
 
 import asyncio
@@ -149,9 +139,17 @@ class RESPParser:
 # In-Memory Store
 # ─────────────────────────────────────────────────────────────
 
+class RedisError(Exception):
+    pass
+
+
+class WrongTypeError(RedisError):
+    pass
+
+
 class Store:
     def __init__(self):
-        self._data: dict[str, str] = {}
+        self._data: dict[str, Any] = {}
         self._expires: dict[str, float] = {}  # key → unix timestamp
 
     def _is_expired(self, key: str) -> bool:
@@ -163,9 +161,31 @@ class Store:
                 return True
         return False
 
+    def _exists(self, key: str) -> bool:
+        return key in self._data and not self._is_expired(key)
+
+    def _require_type(self, key: str, expected: type, kind: str):
+        if self._is_expired(key):
+            return None
+        value = self._data.get(key)
+        if value is None:
+            return None
+        if not isinstance(value, expected):
+            raise WrongTypeError(
+                f"WRONGTYPE Operation against a key holding the wrong kind of value; expected {kind}"
+            )
+        return value
+
     def get(self, key: str) -> str | None:
         if self._is_expired(key): return None
-        return self._data.get(key)
+        value = self._data.get(key)
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise WrongTypeError(
+                "WRONGTYPE Operation against a key holding the wrong kind of value; expected string"
+            )
+        return value
 
     def set(self, key: str, value: str, ex: int | None = None, px: int | None = None):
         self._data[key] = value
@@ -178,6 +198,8 @@ class Store:
     def delete(self, *keys: str) -> int:
         deleted = 0
         for k in keys:
+            if self._is_expired(k):
+                continue
             if k in self._data:
                 del self._data[k]
                 self._expires.pop(k, None)
@@ -189,6 +211,11 @@ class Store:
             return 0
         self._expires[key] = time.time() + seconds
         return 1
+
+    def persist(self, key: str) -> int:
+        if not self._exists(key):
+            return 0
+        return 1 if self._expires.pop(key, None) is not None else 0
 
     def ttl(self, key: str) -> int:
         if key not in self._data or self._is_expired(key):
@@ -203,6 +230,116 @@ class Store:
         live = [k for k in list(self._data) if not self._is_expired(k)]
         return [k for k in live if fnmatch.fnmatch(k, pattern)]
 
+    def incrby(self, key: str, amount: int) -> int:
+        if self._is_expired(key):
+            current = 0
+        elif key not in self._data:
+            current = 0
+        else:
+            value = self._data[key]
+            if not isinstance(value, str):
+                raise WrongTypeError(
+                    "WRONGTYPE Operation against a key holding the wrong kind of value; expected string"
+                )
+            try:
+                current = int(value)
+            except ValueError as exc:
+                raise RedisError("value is not an integer or out of range") from exc
+        current += amount
+        self._data[key] = str(current)
+        return current
+
+    def lpush(self, key: str, *values: str) -> int:
+        items = self._require_type(key, list, "list")
+        if items is None:
+            items = []
+            self._data[key] = items
+        for value in values:
+            items.insert(0, value)
+        return len(items)
+
+    def rpush(self, key: str, *values: str) -> int:
+        items = self._require_type(key, list, "list")
+        if items is None:
+            items = []
+            self._data[key] = items
+        items.extend(values)
+        return len(items)
+
+    def lpop(self, key: str) -> str | None:
+        items = self._require_type(key, list, "list")
+        if not items:
+            return None
+        value = items.pop(0)
+        if not items:
+            self.delete(key)
+        return value
+
+    def rpop(self, key: str) -> str | None:
+        items = self._require_type(key, list, "list")
+        if not items:
+            return None
+        value = items.pop()
+        if not items:
+            self.delete(key)
+        return value
+
+    def llen(self, key: str) -> int:
+        items = self._require_type(key, list, "list")
+        return 0 if items is None else len(items)
+
+    def lrange(self, key: str, start: int, stop: int) -> list[str]:
+        items = self._require_type(key, list, "list")
+        if items is None:
+            return []
+        size = len(items)
+        if start < 0:
+            start += size
+        if stop < 0:
+            stop += size
+        start = max(start, 0)
+        stop = min(stop, size - 1)
+        if start > stop or start >= size:
+            return []
+        return items[start:stop + 1]
+
+    def hset(self, key: str, field: str, value: str) -> int:
+        mapping = self._require_type(key, dict, "hash")
+        if mapping is None:
+            mapping = {}
+            self._data[key] = mapping
+        is_new = field not in mapping
+        mapping[field] = value
+        return 1 if is_new else 0
+
+    def hget(self, key: str, field: str) -> str | None:
+        mapping = self._require_type(key, dict, "hash")
+        if mapping is None:
+            return None
+        return mapping.get(field)
+
+    def hdel(self, key: str, *fields: str) -> int:
+        mapping = self._require_type(key, dict, "hash")
+        if mapping is None:
+            return 0
+        deleted = 0
+        for field in fields:
+            if field in mapping:
+                del mapping[field]
+                deleted += 1
+        if not mapping:
+            self.delete(key)
+        return deleted
+
+    def hgetall(self, key: str) -> list[str]:
+        mapping = self._require_type(key, dict, "hash")
+        if mapping is None:
+            return []
+        result: list[str] = []
+        for field, value in mapping.items():
+            result.extend([field, value])
+        return result
+
     def flush(self):
         self._data.clear()
         self._expires.clear()
@@ -212,70 +349,182 @@ class Store:
 # Command Dispatcher
 # ─────────────────────────────────────────────────────────────
 
-store = Store()
+databases: list[Store] = [Store()]
 
-def dispatch(args: list[str]) -> bytes:
+
+def get_store(db_index: int) -> Store:
+    while db_index >= len(databases):
+        databases.append(Store())
+    return databases[db_index]
+
+
+def parse_int(value: str, message: str = "value is not an integer or out of range") -> int:
+    try:
+        return int(value)
+    except ValueError as exc:
+        raise RedisError(message) from exc
+
+
+def dispatch(args: list[str], state: dict[str, int] | None = None) -> bytes:
     if not args:
         return encode_error("empty command")
+    if state is None:
+        state = {"db": 0}
     cmd = args[0].upper()
+    store = get_store(state["db"])
 
-    if cmd == "PING":
-        msg = args[1] if len(args) > 1 else "PONG"
-        return encode(msg) if len(args) > 1 else b"+PONG\r\n"
+    try:
+        if cmd == "PING":
+            msg = args[1] if len(args) > 1 else "PONG"
+            return encode(msg) if len(args) > 1 else b"+PONG\r\n"
 
-    elif cmd == "ECHO":
-        return encode(args[1]) if len(args) > 1 else encode_error("wrong number of args")
+        elif cmd == "PONG":
+            msg = args[1] if len(args) > 1 else "PING"
+            return encode(msg)
 
-    elif cmd == "SET":
-        if len(args) < 3:
-            return encode_error("wrong number of args for SET")
-        key, value = args[1], args[2]
-        ex = px = None
-        i = 3
-        while i < len(args):
-            opt = args[i].upper()
-            if opt == "EX" and i + 1 < len(args):
-                ex = int(args[i + 1]); i += 2
-            elif opt == "PX" and i + 1 < len(args):
-                px = int(args[i + 1]); i += 2
-            else:
-                i += 1
-        store.set(key, value, ex=ex, px=px)
-        return encode_ok()
+        elif cmd == "ECHO":
+            return encode(args[1]) if len(args) > 1 else encode_error("wrong number of args")
 
-    elif cmd == "GET":
-        if len(args) < 2: return encode_error("wrong number of args")
-        return encode(store.get(args[1]))
+        elif cmd == "SET":
+            if len(args) < 3:
+                return encode_error("wrong number of args for SET")
+            key, value = args[1], args[2]
+            ex = px = None
+            i = 3
+            while i < len(args):
+                opt = args[i].upper()
+                if opt == "EX" and i + 1 < len(args):
+                    ex = parse_int(args[i + 1]); i += 2
+                elif opt == "PX" and i + 1 < len(args):
+                    px = parse_int(args[i + 1]); i += 2
+                else:
+                    i += 1
+            store.set(key, value, ex=ex, px=px)
+            return encode_ok()
 
-    elif cmd == "DEL":
-        if len(args) < 2: return encode_error("wrong number of args")
-        return encode(store.delete(*args[1:]))
+        elif cmd == "GET":
+            if len(args) < 2:
+                return encode_error("wrong number of args")
+            return encode(store.get(args[1]))
 
-    elif cmd == "EXPIRE":
-        if len(args) < 3: return encode_error("wrong number of args")
-        return encode(store.expire(args[1], int(args[2])))
+        elif cmd == "DEL":
+            if len(args) < 2:
+                return encode_error("wrong number of args")
+            return encode(store.delete(*args[1:]))
 
-    elif cmd == "TTL":
-        if len(args) < 2: return encode_error("wrong number of args")
-        return encode(store.ttl(args[1]))
+        elif cmd == "EXPIRE":
+            if len(args) < 3:
+                return encode_error("wrong number of args")
+            return encode(store.expire(args[1], parse_int(args[2])))
 
-    elif cmd == "KEYS":
-        pattern = args[1] if len(args) > 1 else "*"
-        return encode(store.keys(pattern))
+        elif cmd == "PERSIST":
+            if len(args) != 2:
+                return encode_error("wrong number of args")
+            return encode(store.persist(args[1]))
 
-    elif cmd == "FLUSHDB":
-        store.flush()
-        return encode_ok()
+        elif cmd == "TTL":
+            if len(args) < 2:
+                return encode_error("wrong number of args")
+            return encode(store.ttl(args[1]))
 
-    elif cmd == "DBSIZE":
-        # Return count of live (non-expired) keys
-        return encode(len(store.keys("*")))
+        elif cmd == "INCR":
+            if len(args) != 2:
+                return encode_error("wrong number of args")
+            return encode(store.incrby(args[1], 1))
 
-    elif cmd == "COMMAND":  # redis-cli sends this on connect
-        return encode([])
+        elif cmd == "INCRBY":
+            if len(args) != 3:
+                return encode_error("wrong number of args")
+            return encode(store.incrby(args[1], parse_int(args[2])))
 
-    else:
-        return encode_error(f"unknown command '{args[0]}'")
+        elif cmd == "DECR":
+            if len(args) != 2:
+                return encode_error("wrong number of args")
+            return encode(store.incrby(args[1], -1))
+
+        elif cmd == "DECRBY":
+            if len(args) != 3:
+                return encode_error("wrong number of args")
+            return encode(store.incrby(args[1], -parse_int(args[2])))
+
+        elif cmd == "LPUSH":
+            if len(args) < 3:
+                return encode_error("wrong number of args")
+            return encode(store.lpush(args[1], *args[2:]))
+
+        elif cmd == "RPUSH":
+            if len(args) < 3:
+                return encode_error("wrong number of args")
+            return encode(store.rpush(args[1], *args[2:]))
+
+        elif cmd == "LPOP":
+            if len(args) != 2:
+                return encode_error("wrong number of args")
+            return encode(store.lpop(args[1]))
+
+        elif cmd == "RPOP":
+            if len(args) != 2:
+                return encode_error("wrong number of args")
+            return encode(store.rpop(args[1]))
+
+        elif cmd == "LLEN":
+            if len(args) != 2:
+                return encode_error("wrong number of args")
+            return encode(store.llen(args[1]))
+
+        elif cmd == "LRANGE":
+            if len(args) != 4:
+                return encode_error("wrong number of args")
+            return encode(store.lrange(args[1], parse_int(args[2]), parse_int(args[3])))
+
+        elif cmd == "HSET":
+            if len(args) != 4:
+                return encode_error("wrong number of args")
+            return encode(store.hset(args[1], args[2], args[3]))
+
+        elif cmd == "HGET":
+            if len(args) != 3:
+                return encode_error("wrong number of args")
+            return encode(store.hget(args[1], args[2]))
+
+        elif cmd == "HDEL":
+            if len(args) < 3:
+                return encode_error("wrong number of args")
+            return encode(store.hdel(args[1], *args[2:]))
+
+        elif cmd == "HGETALL":
+            if len(args) != 2:
+                return encode_error("wrong number of args")
+            return encode(store.hgetall(args[1]))
+
+        elif cmd == "SELECT":
+            if len(args) != 2:
+                return encode_error("wrong number of args")
+            db_index = parse_int(args[1], "DB index is out of range")
+            if db_index < 0:
+                return encode_error("DB index is out of range")
+            state["db"] = db_index
+            get_store(db_index)
+            return encode_ok()
+
+        elif cmd == "KEYS":
+            pattern = args[1] if len(args) > 1 else "*"
+            return encode(store.keys(pattern))
+
+        elif cmd == "FLUSHDB":
+            store.flush()
+            return encode_ok()
+
+        elif cmd == "DBSIZE":
+            return encode(len(store.keys("*")))
+
+        elif cmd == "COMMAND":
+            return encode([])
+
+        else:
+            return encode_error(f"unknown command '{args[0]}'")
+    except RedisError as exc:
+        return encode_error(str(exc))
 
 
 # ─────────────────────────────────────────────────────────────
@@ -283,8 +532,8 @@ def dispatch(args: list[str]) -> bytes:
 # ─────────────────────────────────────────────────────────────
 
 async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
-    addr = writer.get_extra_info("peername")
     parser = RESPParser()
+    state = {"db": 0}
     try:
         while True:
             data = await reader.read(4096)
@@ -295,7 +544,7 @@ async def handle_client(reader: asyncio.StreamReader, writer: asyncio.StreamWrit
                 cmd = parser.get_command()
                 if cmd is None:
                     break
-                response = dispatch(cmd)
+                response = dispatch(cmd, state)
                 writer.write(response)
                 await writer.drain()
     except (ConnectionResetError, BrokenPipeError):
