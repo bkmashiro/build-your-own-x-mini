@@ -7,3 +7,5 @@ dist/
 build/
 .env
 venv/
+node_modules/
+dist/
