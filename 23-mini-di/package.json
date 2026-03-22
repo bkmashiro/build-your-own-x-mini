@@ -1,0 +1,9 @@
+{
+  "name": "23-mini-di",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "demo": "bun run demo.ts",
+    "test": "bun test"
+  }
+}
