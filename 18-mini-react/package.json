@@ -1,0 +1,23 @@
+{
+  "name": "18-mini-react",
+  "version": "1.0.0",
+  "description": "A simplified React implementation with hooks and diff algorithm",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest --testEnvironment jsdom",
+    "test:watch": "jest --testEnvironment jsdom --watch"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.4.5"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "testMatch": ["**/__tests__/**/*.test.ts"]
+  }
+}
