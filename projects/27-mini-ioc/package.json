@@ -1,0 +1,10 @@
+{
+  "name": "27-mini-ioc",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "demo": "node --experimental-strip-types demo.ts",
+    "test": "node --experimental-strip-types --test src/*.test.ts",
+    "check": "node --experimental-strip-types --test src/*.test.ts"
+  }
+}
