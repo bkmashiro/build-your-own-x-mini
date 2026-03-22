@@ -1,0 +1,14 @@
+{
+  "name": "25-mini-proxy",
+  "version": "1.0.0",
+  "description": "Vue 3-style reactive system with Proxy, ref, computed, and effect",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "node src/index.ts",
+    "test": "node --test __tests__/proxy.test.ts"
+  },
+  "engines": {
+    "node": ">=25"
+  }
+}
