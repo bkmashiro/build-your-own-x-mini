@@ -1,0 +1,13 @@
+{
+  "name": "mini-pubsub",
+  "version": "1.0.0",
+  "description": "A minimal publish-subscribe messaging system",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}

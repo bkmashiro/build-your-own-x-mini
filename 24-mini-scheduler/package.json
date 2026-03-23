@@ -1,0 +1,13 @@
+{
+  "name": "mini-scheduler",
+  "version": "1.0.0",
+  "description": "A minimal task scheduler with priority queue",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}
