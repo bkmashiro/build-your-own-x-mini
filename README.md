@@ -2,7 +2,7 @@
 
 # 🔧 build-your-own-x-mini
 
-**Minimal, readable implementations of real systems — each under 500 lines.**
+**Minimal, readable implementations of real systems — each under 200 lines.**
 
 [![GitHub stars](https://img.shields.io/github/stars/bkmashiro/build-your-own-x-mini?style=for-the-badge&logo=github&color=FFD700)](https://github.com/bkmashiro/build-your-own-x-mini)
 [![MIT License](https://img.shields.io/badge/license-MIT-22c55e?style=for-the-badge)](LICENSE)
@@ -18,102 +18,50 @@
 
 ## 📦 Projects
 
-### Core Systems (Python)
-
-| # | Project | Lines | Key Concepts | Tests |
-|:--|:--------|:------|:-------------|:------|
-| 01 | [mini-redis](./01-mini-redis/) | ~320 | RESP2 protocol, asyncio, TTL | ✅ |
-| 02 | [mini-git](./02-mini-git/) | ~280 | SHA1 hashing, zlib, content-addressable storage | ✅ |
-| 03 | [mini-http](./03-mini-http/) | ~340 | HTTP/1.1 parsing, socket API, routing | ✅ |
-| 04 | [mini-lsm](./04-mini-lsm/) | ~240 | MemTable, SSTables, compaction | ✅ |
-| 05 | [mini-raft](./05-mini-raft/) | ~350 | leader election, log replication | ✅ |
-| 06 | [mini-regex](./06-mini-regex/) | ~170 | NFA construction, Thompson's algorithm | ✅ |
-| 07 | [mini-vm](./07-mini-vm/) | ~160 | stack bytecode, compiler, call frames | ✅ |
-| 08 | [mini-malloc](./08-mini-malloc/) | ~110 | free list, first-fit, coalescing | ✅ |
-| 09 | [mini-tls](./09-mini-tls/) | ~165 | TLS 1.3 handshake, AES-GCM | ✅ |
-| 10 | [mini-db](./10-mini-db/) | ~170 | SQL parser, WHERE executor, index | ✅ |
-| 11 | [mini-shell](./11-mini-shell/) | ~190 | fork/exec, pipes, redirects | ✅ |
-
-### Frontend & JavaScript Runtime (TypeScript)
-
-| # | Project | Lines | Key Concepts | Tests |
-|:--|:--------|:------|:-------------|:------|
-| 12 | [mini-json-parser](./12-mini-json-parser/) | ~493 | recursive descent, AST, IEEE-754 | 33 |
-| 13 | [mini-lru-cache](./13-mini-lru-cache/) | ~162 | HashMap + doubly linked list, O(1) | 25 |
-| 14 | [mini-event-loop](./14-mini-event-loop/) | ~369 | single-threaded async, microtask queue | 26 |
-| 15 | [mini-promise](./15-mini-promise/) | ~296 | Promise/A+ spec, chaining, thenable | 46 |
-| 16 | [mini-bundler](./16-mini-bundler/) | ~580 | dependency graph, circular detection | 31 |
-| 17 | [mini-router](./17-mini-router/) | ~368 | path matching, wildcards, guards | 30 |
-| 18 | [mini-react](./18-mini-react/) | ~380 | createElement, render, hooks | 25 |
-| 19 | [mini-vdom](./19-mini-vdom/) | ~331 | diffing, patching, keyed children | 26 |
-| 20 | [mini-fiber](./20-mini-fiber/) | ~358 | work loop, time slicing, lanes | 27 |
-| 21 | [mini-observable](./21-mini-observable/) | ~348 | hot/cold, operators, backpressure | 24 |
-| 22 | [mini-state](./22-mini-state/) | ~182 | atom/selector, derived state | 14 |
-
-### Patterns & Tooling (TypeScript)
-
-| # | Project | Lines | Key Concepts | Tests |
-|:--|:--------|:------|:-------------|:------|
-| 23 | [mini-di](./23-mini-di/) | ~188 | IoC container, decorators, scopes | 7 |
-| 25 | [mini-proxy](./25-mini-proxy/) | ~205 | ES Proxy, reactive, interceptors | 15 |
-| 26 | [mini-compiler](./26-mini-compiler/) | ~339 | lexer, parser, AST, codegen | 28 |
-| 28 | [mini-orm](./28-mini-orm/) | ~261 | decorators, query builder, relations | 12 |
-| 29 | [mini-validator](./29-mini-validator/) | ~219 | schema DSL, type inference, custom rules | 18 |
+| # | Project | Lines | Key Concepts | Analysis |
+|:--|:--------|:------|:-------------|:---------|
+| 01 | [mini-redis](./01-mini-redis/README.md) ([中文](./01-mini-redis/README.zh.md)) | ~180 | RESP2 protocol, asyncio, TTL | ✅ |
+| 02 | [mini-git](./02-mini-git/README.md) ([中文](./02-mini-git/README.zh.md)) | ~190 | SHA1 hashing, zlib, content-addressable storage | ✅ |
+| 03 | [mini-http](./03-mini-http/README.md) ([中文](./03-mini-http/README.zh.md)) | ~190 | HTTP/1.1 parsing, socket API, routing, threading | ✅ |
+| 04 | [mini-lsm](./04-mini-lsm/README.md) ([中文](./04-mini-lsm/README.zh.md)) | ~180 | MemTable, SSTables, point reads, compaction | ✅ |
+| 05 | [mini-raft](./05-mini-raft/README.md) ([中文](./05-mini-raft/README.zh.md)) | ~290 | leader election, terms, log replication, majority commit | ✅ |
+| 06 | [mini-regex](./06-mini-regex/README.md) ([中文](./06-mini-regex/README.zh.md)) | ~168 | NFA construction, Thompson's algorithm, epsilon-closure, backtracking | ✅ |
+| 07 | [mini-vm](./07-mini-vm/README.md) ([中文](./07-mini-vm/README.zh.md)) | ~160 | stack bytecode, compiler, call frames, disassembly | ✅ |
+| 08 | [mini-malloc](./08-mini-malloc/README.md) ([中文](./08-mini-malloc/README.zh.md)) | ~110 | free list, first-fit, realloc, coalescing | ✅ |
+| 09 | [mini-tls](./09-mini-tls/README.md) ([中文](./09-mini-tls/README.zh.md)) | ~165 | TLS 1.3 handshake, key schedule, AES-GCM, certificates | ✅ |
+| 10 | [mini-db](./10-mini-db/README.md) ([中文](./10-mini-db/README.zh.md)) | ~172 | SQL parser, WHERE executor, sorted index, in-memory tables | ✅ |
+| 11 | [mini-shell](./11-mini-shell/README.md) ([中文](./11-mini-shell/README.zh.md)) | ~190 | tokenizer, fork/exec, pipes, redirects, builtins | ✅ |
+| 12 | [mini-neural-net](./12-mini-neural-net/README.md) ([中文](./12-mini-neural-net/README.zh.md)) | ~190 | forward pass, backprop, SGD, Xavier init, XOR demo | ✅ |
 
 ---
 
 ## 🎯 Philosophy
 
-- **One folder, one concept** — focused implementation
-- **Inline comments** — explain every non-obvious decision
-- **Tests included** — runnable specs for each project
-- **Bilingual docs** — English + 中文
-
----
-
-## 🚀 Quick Start
-
-```bash
-# Clone
-git clone https://github.com/bkmashiro/build-your-own-x-mini.git
-cd build-your-own-x-mini
-
-# Run a TypeScript project
-cd 15-mini-promise
-pnpm install
-pnpm test
-
-# Run a Python project
-cd 01-mini-redis
-python -m pytest
-```
+- One file, one concept
+- Inline comments explain every non-obvious decision
+- Runnable demo included
+- **Bilingual analysis** — full English write-up + 完整中文解析
 
 ---
 
 ## 🗺️ Roadmap
 
-### Completed ✅
-- [x] 01-11: Core systems (Python)
-- [x] 12-22: Frontend & JS runtime (TypeScript)
-- [x] 23-29: Patterns & tooling (TypeScript)
-
-### Planned
-- [ ] 24-mini-signals — fine-grained reactivity
-- [ ] 27-mini-ioc — inversion of control
-- [ ] 30-mini-graphql — schema, resolvers, execution
-- [ ] 31-mini-wasm — binary format, stack machine
-- [ ] 32-mini-lisp — s-expressions, eval/apply
-
----
-
-## 📊 Stats
-
-| Metric | Value |
-|--------|-------|
-| Total Projects | 27 |
-| Total Lines | ~7,500 |
-| Total Tests | ~400 |
-| Languages | Python, TypeScript |
+- [x] mini-lsm — LSM tree, memtable, SSTables
+- [x] mini-raft — leader election, log replication
+- [x] mini-regex — NFA construction, backtracking
+- [x] mini-vm — bytecode interpreter, stack machine
+- [x] mini-malloc — free list, first-fit allocator
+- [x] mini-tls — record layer, handshake, certificates
+- [x] mini-db — SQL parsing, planning, storage
+- [ ] 12-mini-json-parser — recursive descent parser, AST, IEEE-754
+- [ ] 13-mini-lru-cache — HashMap + doubly linked list, O(1) get/put
+- [ ] 14-mini-event-loop — single-threaded async, epoll/kqueue, microtask queue
+- [ ] 15-mini-actor — actor model, message passing, supervision tree
+- [ ] 16-mini-rpc — binary protocol, serialization, connection pooling
+- [ ] 17-mini-bloom-filter — probabilistic set, false positive rate, bit array
+- [ ] 18-mini-b-tree — balanced tree, node split/merge, range queries
+- [ ] 19-mini-wal — write-ahead log, crash recovery, log replay
+- [ ] 20-mini-pubsub — publish-subscribe, topic routing, backpressure
 
 ---
 
