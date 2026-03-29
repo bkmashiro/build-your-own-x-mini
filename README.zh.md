@@ -44,6 +44,7 @@
 | 18 | [mini-torrent](./projects/18-mini-torrent/) | ~130 | DHT、Peer Wire Protocol、piece 选择、seeding | demo |
 | 19 | [mini-ray-tracer](./projects/19-mini-ray-tracer/) | ~135 | ray-sphere intersection、BVH、阴影、反射 | demo |
 | 20 | [mini-search](./projects/20-mini-search/) | ~80 | 倒排索引、TF-IDF、BM25、查询排序 | demo |
+| 21 | [mini-os](./projects/21-mini-os/) | ~156 | bootloader 流程、中断、内存分页、round-robin 调度器 | demo |
 | 14 | [mini-physics](./projects/14-mini-physics/) | ~155 | 刚体、AABB 碰撞、冲量解算、2D 模拟 | 4 |
 | 24 | [mini-signals](./projects/24-mini-signals/) | ~210 | signals、effects、memos、批量更新 | 6 |
 | 27 | [mini-ioc](./projects/27-mini-ioc/) | ~205 | 类型化 token、作用域、资源释放 | 6 |
