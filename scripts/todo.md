@@ -27,7 +27,7 @@
 - [x] 20: mini-search — inverted index, TF-IDF, BM25, query ranking
 - [x] 21: mini-os — bootloader, interrupts, memory paging, simple scheduler
 - [x] 22: mini-riscv — RISC-V decoder, ALU, pipeline stages, branch predictor
-- [ ] 23: mini-react — virtual DOM, reconciler, fiber, hooks (useState/useEffect)
+- [x] 23: mini-react — virtual DOM, reconciler, fiber, hooks (useState/useEffect)
 - [x] 24: mini-game-engine — ECS, scene graph, input, fixed timestep, AABB
 - [ ] 25: mini-voxel — chunk system, greedy meshing, camera, OpenGL render
 
