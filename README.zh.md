@@ -31,7 +31,14 @@
 | 09 | [mini-tls（中文）](./09-mini-tls/README.zh.md) ([English](./09-mini-tls/README.md)) | ~165 | TLS 1.3 握手、key schedule、AES-GCM、证书结构 | ✅ |
 | 10 | [mini-db（中文）](./10-mini-db/README.zh.md) ([English](./10-mini-db/README.md)) | ~172 | SQL 解析、WHERE 执行、有序索引、内存表 | ✅ |
 | 11 | [mini-shell（中文）](./11-mini-shell/README.zh.md) ([English](./11-mini-shell/README.md)) | ~190 | 词法分析、fork/exec、管道、重定向、内置命令 | ✅ |
-| 12 | [mini-neural-net（中文）](./12-mini-neural-net/README.zh.md) ([English](./12-mini-neural-net/README.md)) | ~190 | 前向传播、反向传播、SGD、Xavier 初始化、XOR 演示 | ✅ |
+| 12 | [mini-neural-net（中文）](./projects/12-mini-neural-net/README.zh.md) ([English](./projects/12-mini-neural-net/README.md)) | ~80 | 前向传播、反向传播、SGD、XOR 演示 | ✅ |
+
+### 孵化项目
+
+| # | 项目 | 代码行 | 核心概念 | 测试数 |
+|:--|:-----|:-------|:---------|:-------|
+| 24 | [mini-signals](./projects/24-mini-signals/) | ~210 | signals、effects、memos、批量更新 | 6 |
+| 27 | [mini-ioc](./projects/27-mini-ioc/) | ~205 | 类型化 token、作用域、资源释放 | 6 |
 
 ---
 
@@ -53,6 +60,7 @@
 - [x] mini-malloc — 空闲链表、first-fit 分配器
 - [x] mini-tls — Record Layer、握手、证书
 - [x] mini-db — SQL 解析、执行计划、存储
+- [x] projects/12-mini-neural-net — 前向传播、反向传播、SGD、XOR 演示
 - [ ] 12-mini-json-parser — 递归下降解析器、AST、IEEE-754
 - [ ] 13-mini-lru-cache — HashMap + 双向链表、O(1) get/put
 - [ ] 14-mini-event-loop — 单线程异步、epoll/kqueue、微任务队列

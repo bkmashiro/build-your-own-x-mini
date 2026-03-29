@@ -31,7 +31,14 @@
 | 09 | [mini-tls](./09-mini-tls/README.md) ([中文](./09-mini-tls/README.zh.md)) | ~165 | TLS 1.3 handshake, key schedule, AES-GCM, certificates | ✅ |
 | 10 | [mini-db](./10-mini-db/README.md) ([中文](./10-mini-db/README.zh.md)) | ~172 | SQL parser, WHERE executor, sorted index, in-memory tables | ✅ |
 | 11 | [mini-shell](./11-mini-shell/README.md) ([中文](./11-mini-shell/README.zh.md)) | ~190 | tokenizer, fork/exec, pipes, redirects, builtins | ✅ |
-| 12 | [mini-neural-net](./12-mini-neural-net/README.md) ([中文](./12-mini-neural-net/README.zh.md)) | ~190 | forward pass, backprop, SGD, Xavier init, XOR demo | ✅ |
+| 12 | [mini-neural-net](./projects/12-mini-neural-net/README.md) ([中文](./projects/12-mini-neural-net/README.zh.md)) | ~80 | forward pass, backprop, SGD, XOR demo | ✅ |
+
+### Incubator Projects
+
+| # | Project | Lines | Key Concepts | Tests |
+|:--|:--------|:------|:-------------|:------|
+| 24 | [mini-signals](./projects/24-mini-signals/) | ~210 | signals, effects, memos, batching | 6 |
+| 27 | [mini-ioc](./projects/27-mini-ioc/) | ~205 | typed tokens, scopes, disposal | 6 |
 
 ---
 
@@ -53,6 +60,7 @@
 - [x] mini-malloc — free list, first-fit allocator
 - [x] mini-tls — record layer, handshake, certificates
 - [x] mini-db — SQL parsing, planning, storage
+- [x] projects/12-mini-neural-net — forward pass, backprop, SGD, XOR demo
 - [ ] 12-mini-json-parser — recursive descent parser, AST, IEEE-754
 - [ ] 13-mini-lru-cache — HashMap + doubly linked list, O(1) get/put
 - [ ] 14-mini-event-loop — single-threaded async, epoll/kqueue, microtask queue
