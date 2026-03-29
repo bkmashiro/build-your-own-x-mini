@@ -23,7 +23,7 @@
 - [x] 16: mini-browser — HTML tokenizer, CSS box model, layout, paint to terminal
 - [x] 17: mini-bitcoin — SHA256, Merkle tree, PoW mining, chain validation
 - [x] 18: mini-torrent — DHT, peer wire protocol, piece selection, seeding
-- [ ] 19: mini-ray-tracer — ray-sphere intersection, BVH, shadows, reflections
+- [x] 19: mini-ray-tracer — ray-sphere intersection, BVH, shadows, reflections
 - [ ] 20: mini-search — inverted index, TF-IDF, BM25, query ranking
 - [ ] 21: mini-os — bootloader, interrupts, memory paging, simple scheduler
 - [ ] 22: mini-riscv — RISC-V decoder, ALU, pipeline stages, branch predictor

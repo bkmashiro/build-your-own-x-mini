@@ -42,6 +42,7 @@
 | 16 | [mini-browser](./projects/16-mini-browser/) | ~160 | HTML tokenizer、CSS 盒模型、块级布局、终端渲染 | demo |
 | 17 | [mini-bitcoin](./projects/17-mini-bitcoin/) | ~90 | SHA256、Merkle tree、工作量证明、链校验 | demo |
 | 18 | [mini-torrent](./projects/18-mini-torrent/) | ~130 | DHT、Peer Wire Protocol、piece 选择、seeding | demo |
+| 19 | [mini-ray-tracer](./projects/19-mini-ray-tracer/) | ~135 | ray-sphere intersection、BVH、阴影、反射 | demo |
 | 14 | [mini-physics](./projects/14-mini-physics/) | ~155 | 刚体、AABB 碰撞、冲量解算、2D 模拟 | 4 |
 | 24 | [mini-signals](./projects/24-mini-signals/) | ~210 | signals、effects、memos、批量更新 | 6 |
 | 27 | [mini-ioc](./projects/27-mini-ioc/) | ~205 | 类型化 token、作用域、资源释放 | 6 |
