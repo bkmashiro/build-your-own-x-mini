@@ -38,6 +38,7 @@
 
 | # | Project | Lines | Key Concepts | Tests |
 |:--|:--------|:------|:-------------|:------|
+| 14 | [mini-physics](./projects/14-mini-physics/) | ~155 | rigid body, AABB collision, impulse resolution, 2D sim | 4 |
 | 24 | [mini-signals](./projects/24-mini-signals/) | ~210 | signals, effects, memos, batching | 6 |
 | 27 | [mini-ioc](./projects/27-mini-ioc/) | ~205 | typed tokens, scopes, disposal | 6 |
 

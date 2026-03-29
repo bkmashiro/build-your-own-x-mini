@@ -1,0 +1,9 @@
+{
+  "name": "14-mini-physics",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --experimental-strip-types test/*.test.ts",
+    "demo": "node --experimental-strip-types demo.ts"
+  }
+}
