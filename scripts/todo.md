@@ -21,7 +21,7 @@
 - [x] 14: mini-physics — rigid body, AABB collision, impulse resolution, 2D sim
 - [x] 15: mini-lisp — tokenizer, reader, eval, environment, closures, TCO
 - [x] 16: mini-browser — HTML tokenizer, CSS box model, layout, paint to terminal
-- [ ] 17: mini-bitcoin — SHA256, Merkle tree, PoW mining, chain validation
+- [x] 17: mini-bitcoin — SHA256, Merkle tree, PoW mining, chain validation
 - [ ] 18: mini-torrent — DHT, peer wire protocol, piece selection, seeding
 - [ ] 19: mini-ray-tracer — ray-sphere intersection, BVH, shadows, reflections
 - [ ] 20: mini-search — inverted index, TF-IDF, BM25, query ranking

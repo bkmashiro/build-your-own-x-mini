@@ -40,6 +40,7 @@
 |:--|:--------|:------|:-------------|:------|
 | 15 | [mini-lisp](./projects/15-mini-lisp/) | ~148 | tokenizer, reader, eval, closures, tail-call optimization | 4 |
 | 16 | [mini-browser](./projects/16-mini-browser/) | ~160 | HTML tokenizer, CSS box model, block layout, terminal paint | demo |
+| 17 | [mini-bitcoin](./projects/17-mini-bitcoin/) | ~90 | SHA256, Merkle tree, proof-of-work, chain validation | demo |
 | 14 | [mini-physics](./projects/14-mini-physics/) | ~155 | rigid body, AABB collision, impulse resolution, 2D sim | 4 |
 | 24 | [mini-signals](./projects/24-mini-signals/) | ~210 | signals, effects, memos, batching | 6 |
 | 27 | [mini-ioc](./projects/27-mini-ioc/) | ~205 | typed tokens, scopes, disposal | 6 |
