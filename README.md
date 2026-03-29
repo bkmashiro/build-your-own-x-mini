@@ -43,6 +43,7 @@
 | 17 | [mini-bitcoin](./projects/17-mini-bitcoin/) | ~90 | SHA256, Merkle tree, proof-of-work, chain validation | demo |
 | 18 | [mini-torrent](./projects/18-mini-torrent/) | ~130 | DHT, peer wire protocol, piece selection, seeding | demo |
 | 19 | [mini-ray-tracer](./projects/19-mini-ray-tracer/) | ~135 | ray-sphere intersection, BVH, shadows, reflections | demo |
+| 20 | [mini-search](./projects/20-mini-search/) | ~80 | inverted index, TF-IDF, BM25, query ranking | demo |
 | 14 | [mini-physics](./projects/14-mini-physics/) | ~155 | rigid body, AABB collision, impulse resolution, 2D sim | 4 |
 | 24 | [mini-signals](./projects/24-mini-signals/) | ~210 | signals, effects, memos, batching | 6 |
 | 27 | [mini-ioc](./projects/27-mini-ioc/) | ~205 | typed tokens, scopes, disposal | 6 |
