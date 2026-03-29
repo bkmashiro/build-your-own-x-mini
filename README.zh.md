@@ -49,6 +49,7 @@
 | 14 | [mini-physics](./projects/14-mini-physics/) | ~155 | 刚体、AABB 碰撞、冲量解算、2D 模拟 | 4 |
 | 24 | [mini-signals](./projects/24-mini-signals/) | ~210 | signals、effects、memos、批量更新 | 6 |
 | 25 | [mini-compiler](./projects/25-mini-compiler/) | ~191 | 词法分析、递归下降解析、AST、栈式代码生成 | demo |
+| 27 | [mini-blockchain](./projects/27-mini-blockchain/) | ~145 | 区块、SHA256、工作量证明、账户余额、链校验 | demo |
 | 27 | [mini-ioc](./projects/27-mini-ioc/) | ~205 | 类型化 token、作用域、资源释放 | 6 |
 
 ---
