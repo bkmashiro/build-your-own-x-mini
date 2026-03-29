@@ -39,6 +39,7 @@
 | # | 项目 | 代码行 | 核心概念 | 测试数 |
 |:--|:-----|:-------|:---------|:-------|
 | 15 | [mini-lisp](./projects/15-mini-lisp/) | ~148 | tokenizer、reader、求值器、闭包、尾调用优化 | 4 |
+| 16 | [mini-browser](./projects/16-mini-browser/) | ~160 | HTML tokenizer、CSS 盒模型、块级布局、终端渲染 | demo |
 | 14 | [mini-physics](./projects/14-mini-physics/) | ~155 | 刚体、AABB 碰撞、冲量解算、2D 模拟 | 4 |
 | 24 | [mini-signals](./projects/24-mini-signals/) | ~210 | signals、effects、memos、批量更新 | 6 |
 | 27 | [mini-ioc](./projects/27-mini-ioc/) | ~205 | 类型化 token、作用域、资源释放 | 6 |
