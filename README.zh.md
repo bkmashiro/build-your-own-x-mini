@@ -45,6 +45,7 @@
 | 19 | [mini-ray-tracer](./projects/19-mini-ray-tracer/) | ~135 | ray-sphere intersection、BVH、阴影、反射 | demo |
 | 20 | [mini-search](./projects/20-mini-search/) | ~80 | 倒排索引、TF-IDF、BM25、查询排序 | demo |
 | 21 | [mini-os](./projects/21-mini-os/) | ~156 | bootloader 流程、中断、内存分页、round-robin 调度器 | demo |
+| 22 | [mini-riscv](./projects/22-mini-riscv/) | ~184 | RV32I 解码、整数 ALU、IF/ID/EX/MEM/WB 流水线、分支 flush | demo |
 | 14 | [mini-physics](./projects/14-mini-physics/) | ~155 | 刚体、AABB 碰撞、冲量解算、2D 模拟 | 4 |
 | 24 | [mini-signals](./projects/24-mini-signals/) | ~210 | signals、effects、memos、批量更新 | 6 |
 | 27 | [mini-ioc](./projects/27-mini-ioc/) | ~205 | 类型化 token、作用域、资源释放 | 6 |
