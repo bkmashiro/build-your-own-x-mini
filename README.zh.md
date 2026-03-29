@@ -32,6 +32,7 @@
 | 10 | [mini-db（中文）](./10-mini-db/README.zh.md) ([English](./10-mini-db/README.md)) | ~172 | SQL 解析、WHERE 执行、有序索引、内存表 | ✅ |
 | 11 | [mini-shell（中文）](./11-mini-shell/README.zh.md) ([English](./11-mini-shell/README.md)) | ~190 | 词法分析、fork/exec、管道、重定向、内置命令 | ✅ |
 | 12 | [mini-neural-net（中文）](./projects/12-mini-neural-net/README.zh.md) ([English](./projects/12-mini-neural-net/README.md)) | ~80 | 前向传播、反向传播、SGD、XOR 演示 | ✅ |
+| 13 | [mini-docker（中文）](./projects/13-mini-docker/README.zh.md) ([English](./projects/13-mini-docker/README.md)) | ~110 | namespaces、cgroup v2、overlayfs、chroot | ✅ |
 
 ### 孵化项目
 

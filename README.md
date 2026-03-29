@@ -32,6 +32,7 @@
 | 10 | [mini-db](./10-mini-db/README.md) ([中文](./10-mini-db/README.zh.md)) | ~172 | SQL parser, WHERE executor, sorted index, in-memory tables | ✅ |
 | 11 | [mini-shell](./11-mini-shell/README.md) ([中文](./11-mini-shell/README.zh.md)) | ~190 | tokenizer, fork/exec, pipes, redirects, builtins | ✅ |
 | 12 | [mini-neural-net](./projects/12-mini-neural-net/README.md) ([中文](./projects/12-mini-neural-net/README.zh.md)) | ~80 | forward pass, backprop, SGD, XOR demo | ✅ |
+| 13 | [mini-docker](./projects/13-mini-docker/README.md) ([中文](./projects/13-mini-docker/README.zh.md)) | ~110 | namespaces, cgroup v2, overlayfs, chroot | ✅ |
 
 ### Incubator Projects
 

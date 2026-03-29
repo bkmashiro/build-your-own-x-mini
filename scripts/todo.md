@@ -17,7 +17,7 @@
 - [x] 11: mini-shell — tokenizer, fork/exec, pipes, redirects, builtins (cd/exit)
 - [x] 24: mini-signals — createSignal/createEffect/createMemo, dependency tracking, batching
 - [x] 12: mini-neural-net — forward pass, backprop, SGD, XOR demo from scratch
-- [ ] 13: mini-docker — Linux namespaces, cgroups, overlay FS, image layers
+- [x] 13: mini-docker — Linux namespaces, cgroups, overlay FS, image layers
 - [ ] 14: mini-physics — rigid body, AABB collision, impulse resolution, 2D sim
 - [ ] 15: mini-lisp — tokenizer, reader, eval, environment, closures, TCO
 - [ ] 16: mini-browser — HTML tokenizer, CSS box model, layout, paint to terminal
