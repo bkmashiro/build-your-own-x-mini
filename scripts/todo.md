@@ -29,7 +29,7 @@
 - [x] 22: mini-riscv — RISC-V decoder, ALU, pipeline stages, branch predictor
 - [x] 23: mini-react — virtual DOM, reconciler, fiber, hooks (useState/useEffect)
 - [x] 24: mini-game-engine — ECS, scene graph, input, fixed timestep, AABB
-- [ ] 25: mini-voxel — chunk system, greedy meshing, camera, OpenGL render
+- [x] 25: mini-compiler — lexer, recursive descent parser, AST, stack code generation
 
 ## Notes
 - Each project: one Python file < 200 lines + demo + bilingual README

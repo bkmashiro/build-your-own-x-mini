@@ -48,6 +48,7 @@
 | 22 | [mini-riscv](./projects/22-mini-riscv/) | ~184 | RV32I decode, integer ALU, IF/ID/EX/MEM/WB pipeline, branch flush | demo |
 | 14 | [mini-physics](./projects/14-mini-physics/) | ~155 | rigid body, AABB collision, impulse resolution, 2D sim | 4 |
 | 24 | [mini-signals](./projects/24-mini-signals/) | ~210 | signals, effects, memos, batching | 6 |
+| 25 | [mini-compiler](./projects/25-mini-compiler/) | ~191 | lexer, recursive descent parser, AST, stack code generation | demo |
 | 27 | [mini-ioc](./projects/27-mini-ioc/) | ~205 | typed tokens, scopes, disposal | 6 |
 
 ---

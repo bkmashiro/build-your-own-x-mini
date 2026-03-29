@@ -48,6 +48,7 @@
 | 22 | [mini-riscv](./projects/22-mini-riscv/) | ~184 | RV32I 解码、整数 ALU、IF/ID/EX/MEM/WB 流水线、分支 flush | demo |
 | 14 | [mini-physics](./projects/14-mini-physics/) | ~155 | 刚体、AABB 碰撞、冲量解算、2D 模拟 | 4 |
 | 24 | [mini-signals](./projects/24-mini-signals/) | ~210 | signals、effects、memos、批量更新 | 6 |
+| 25 | [mini-compiler](./projects/25-mini-compiler/) | ~191 | 词法分析、递归下降解析、AST、栈式代码生成 | demo |
 | 27 | [mini-ioc](./projects/27-mini-ioc/) | ~205 | 类型化 token、作用域、资源释放 | 6 |
 
 ---
