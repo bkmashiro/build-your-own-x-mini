@@ -22,7 +22,7 @@
 - [x] 15: mini-lisp — tokenizer, reader, eval, environment, closures, TCO
 - [x] 16: mini-browser — HTML tokenizer, CSS box model, layout, paint to terminal
 - [x] 17: mini-bitcoin — SHA256, Merkle tree, PoW mining, chain validation
-- [ ] 18: mini-torrent — DHT, peer wire protocol, piece selection, seeding
+- [x] 18: mini-torrent — DHT, peer wire protocol, piece selection, seeding
 - [ ] 19: mini-ray-tracer — ray-sphere intersection, BVH, shadows, reflections
 - [ ] 20: mini-search — inverted index, TF-IDF, BM25, query ranking
 - [ ] 21: mini-os — bootloader, interrupts, memory paging, simple scheduler
