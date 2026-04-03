@@ -10,7 +10,7 @@
 **English** | [中文](README.zh.md)
 
 > Not production code. Enough to understand *how it works*.
-> New project every Wednesday, auto-generated. **29 projects** and counting.
+> New project every Wednesday, auto-generated. **30 projects** and counting.
 
 </div>
 
@@ -33,6 +33,7 @@
 | 09 | [mini-tls](./09-mini-tls/README.md) ([中文](./09-mini-tls/README.zh.md)) | ~165 | ⭐⭐⭐ | TLS 1.3 handshake, key schedule, AES-GCM, certificates |
 | 10 | [mini-db](./10-mini-db/README.md) ([中文](./10-mini-db/README.zh.md)) | ~172 | ⭐⭐ | SQL parser, WHERE executor, sorted index, in-memory tables |
 | 11 | [mini-shell](./11-mini-shell/README.md) ([中文](./11-mini-shell/README.zh.md)) | ~190 | ⭐⭐ | Tokenizer, fork/exec, pipes, redirects, builtins |
+| 30 | [mini-neural-net](./30-mini-neural-net/README.md) ([中文](./30-mini-neural-net/README.zh.md)) | ~195 | ⭐⭐ | Forward pass, backprop, chain rule, SGD, XOR demo |
 
 ### Frontend & Language Runtime (TypeScript)
 

@@ -10,7 +10,7 @@
 [English](README.md) | **中文**
 
 > 不是生产代码，但足以理解它*是怎么工作的*。
-> 每周三自动新增一个项目。已收录 **29 个项目**，持续更新中。
+> 每周三自动新增一个项目。已收录 **30 个项目**，持续更新中。
 
 </div>
 
@@ -33,6 +33,7 @@
 | 09 | [mini-tls（中文）](./09-mini-tls/README.zh.md) ([English](./09-mini-tls/README.md)) | ~165 | ⭐⭐⭐ | TLS 1.3 握手、key schedule、AES-GCM、证书结构 |
 | 10 | [mini-db（中文）](./10-mini-db/README.zh.md) ([English](./10-mini-db/README.md)) | ~172 | ⭐⭐ | SQL 解析、WHERE 执行、有序索引、内存表 |
 | 11 | [mini-shell（中文）](./11-mini-shell/README.zh.md) ([English](./11-mini-shell/README.md)) | ~190 | ⭐⭐ | 词法分析、fork/exec、管道、重定向、内置命令 |
+| 30 | [mini-neural-net（中文）](./30-mini-neural-net/README.zh.md) ([English](./30-mini-neural-net/README.md)) | ~195 | ⭐⭐ | 前向传播、反向传播、链式法则、SGD、XOR 演示 |
 
 ### 前端与语言运行时 (TypeScript)
 
