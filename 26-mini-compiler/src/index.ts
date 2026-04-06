@@ -234,6 +234,8 @@ export function parser(tokens: Token[]): LispProgram {
       }
       token = tokens[current];
 
+      if (!token) throw new SyntaxError("Unmatched parenthesis: missing closing )");
+
       if (token.type !== "name") {
         throw new SyntaxError(
           `Expected function name after '(', got: ${token.type} "${token.value}"`

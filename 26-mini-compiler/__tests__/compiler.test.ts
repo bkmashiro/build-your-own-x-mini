@@ -270,6 +270,11 @@ describe("parser", () => {
     expect(() => parser(tokens)).toThrow(SyntaxError);
     expect(() => parser(tokens)).toThrow(/unexpected end of input/i);
   });
+
+  it("throws on unclosed nested parens '((add 1'", () => {
+    const tokens = tokenizer("((add 1");
+    expect(() => parser(tokens)).toThrow(SyntaxError);
+  });
 });
 
 // ─────────────────────────────────────────────
