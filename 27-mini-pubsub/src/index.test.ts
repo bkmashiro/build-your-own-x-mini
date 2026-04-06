@@ -141,6 +141,49 @@ describe('PubSub', () => {
     expect(pubsub.subscriberCount('test')).toBe(2);
   });
 
+  it('should count both exact and matching wildcard subscribers for a topic', () => {
+    const pubsub = new PubSub();
+
+    pubsub.subscribe('user.login', () => {});   // exact match
+    pubsub.subscribe('user.*', () => {});        // wildcard match
+    pubsub.subscribe('admin.*', () => {});       // non-matching wildcard
+
+    // Both the exact subscriber and the 'user.*' wildcard subscriber receive
+    // messages published to 'user.login', so the count must be 2.
+    expect(pubsub.subscriberCount('user.login')).toBe(2);
+  });
+
+  it('should not count wildcard subscribers that do not match the topic', () => {
+    const pubsub = new PubSub();
+
+    pubsub.subscribe('user.*', () => {});
+
+    expect(pubsub.subscriberCount('admin.login')).toBe(0);
+    expect(pubsub.subscriberCount('user.login')).toBe(1);
+  });
+
+  it('should count ** wildcard subscribers matching multi-segment topics', () => {
+    const pubsub = new PubSub();
+
+    pubsub.subscribe('events.**', () => {});
+    pubsub.subscribe('events.user.login', () => {});
+
+    expect(pubsub.subscriberCount('events.user.login')).toBe(2);
+    expect(pubsub.subscriberCount('events.system.start')).toBe(1);
+  });
+
+  it('should decrease wildcard count after unsubscribe', () => {
+    const pubsub = new PubSub();
+
+    const unsub = pubsub.subscribe('user.*', () => {});
+    pubsub.subscribe('user.login', () => {});
+
+    expect(pubsub.subscriberCount('user.login')).toBe(2);
+
+    unsub();
+    expect(pubsub.subscriberCount('user.login')).toBe(1);
+  });
+
   it('should return delivery count', () => {
     const pubsub = new PubSub();
 
