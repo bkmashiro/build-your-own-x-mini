@@ -117,6 +117,98 @@ describe('PubSub', () => {
     const count = pubsub.publish('test', 'data');
     expect(count).toBe(2);
   });
+
+  it('should return 0 delivery count when publishing to topic with no subscribers', () => {
+    const pubsub = new PubSub<string>();
+
+    const count = pubsub.publish('empty', 'hello');
+    expect(count).toBe(0);
+  });
+
+  describe('clear()', () => {
+    it('should remove all subscribers so subscriberCount returns 0', () => {
+      const pubsub = new PubSub<string>();
+
+      pubsub.subscribe('topic.a', () => {});
+      pubsub.subscribe('topic.b', () => {});
+      pubsub.subscribe('topic.*', () => {});
+
+      pubsub.clear();
+
+      expect(pubsub.subscriberCount('topic.a')).toBe(0);
+      expect(pubsub.subscriberCount('topic.b')).toBe(0);
+    });
+
+    it('should stop delivering messages after clear', () => {
+      const pubsub = new PubSub<string>();
+      const received: string[] = [];
+
+      pubsub.subscribe('test', (msg) => received.push(msg));
+      pubsub.clear();
+      pubsub.publish('test', 'after-clear');
+
+      expect(received).toEqual([]);
+    });
+  });
+
+  describe('clearHistory()', () => {
+    it('should reset stored history so replay does not receive old messages', () => {
+      const pubsub = new PubSub<string>({ maxHistory: 10 });
+      const received: string[] = [];
+
+      pubsub.publish('log', 'old1');
+      pubsub.publish('log', 'old2');
+      pubsub.clearHistory();
+
+      pubsub.replay('log', (msg) => received.push(msg));
+
+      expect(received).toEqual([]);
+    });
+
+    it('should allow new messages to be stored after clearHistory', () => {
+      const pubsub = new PubSub<string>({ maxHistory: 10 });
+
+      pubsub.publish('log', 'old');
+      pubsub.clearHistory();
+      pubsub.publish('log', 'new');
+
+      expect(pubsub.getHistory('log')).toEqual(['new']);
+    });
+  });
+
+  describe('hasSubscribers()', () => {
+    it('should return false on an empty bus', () => {
+      const pubsub = new PubSub<string>();
+
+      expect(pubsub.hasSubscribers('test')).toBe(false);
+    });
+
+    it('should return true after subscribing', () => {
+      const pubsub = new PubSub<string>();
+
+      pubsub.subscribe('test', () => {});
+
+      expect(pubsub.hasSubscribers('test')).toBe(true);
+    });
+
+    it('should return false after unsubscribing the last subscriber', () => {
+      const pubsub = new PubSub<string>();
+
+      const unsub = pubsub.subscribe('test', () => {});
+      unsub();
+
+      expect(pubsub.hasSubscribers('test')).toBe(false);
+    });
+
+    it('should account for wildcard subscribers matching the topic', () => {
+      const pubsub = new PubSub<string>();
+
+      pubsub.subscribe('user.*', () => {});
+
+      expect(pubsub.hasSubscribers('user.login')).toBe(true);
+      expect(pubsub.hasSubscribers('system.start')).toBe(false);
+    });
+  });
 });
 
 describe('EventEmitter', () => {
