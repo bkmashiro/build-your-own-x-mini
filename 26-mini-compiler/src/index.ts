@@ -190,6 +190,10 @@ export function parser(tokens: Token[]): LispProgram {
   let current = 0;
 
   function walk(): LispNode {
+    if (current >= tokens.length) {
+      throw new SyntaxError("Unexpected end of input");
+    }
+
     let token = tokens[current];
 
     if (token.type === "number") {
@@ -204,6 +208,9 @@ export function parser(tokens: Token[]): LispProgram {
 
     if (token.type === "paren" && token.value === "(") {
       current++; // skip `(`
+      if (current >= tokens.length) {
+        throw new SyntaxError("Unexpected end of input — missing function name after '('");
+      }
       token = tokens[current];
 
       if (token.type !== "name") {
