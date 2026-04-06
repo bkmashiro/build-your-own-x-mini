@@ -573,3 +573,74 @@ describe("cloneValue — circular references", () => {
     ).toThrow("Entity contains circular references");
   });
 });
+
+
+@Entity("meta-products")
+class MetaProduct {
+  @PrimaryKey()
+  id!: number;
+
+  @Column()
+  name!: string;
+
+  @Column()
+  metadata!: Record<string, unknown>;
+}
+
+
+describe("matchesWhere — property order insensitivity", () => {
+  test("finds entities when where clause object has properties in different insertion order", () => {
+    const orm = new MiniORM();
+
+    orm.create(MetaProduct, { id: 1, name: "Widget", metadata: { color: "red", size: "large" } });
+    orm.create(MetaProduct, { id: 2, name: "Gadget", metadata: { color: "blue", size: "small" } });
+
+    // Property order reversed relative to stored entity
+    const result = orm.find(MetaProduct, { metadata: { size: "large", color: "red" } });
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual(expect.objectContaining({ id: 1, name: "Widget" }));
+  });
+
+  test("does not match entities with different object values even if keys are same", () => {
+    const orm = new MiniORM();
+
+    orm.create(MetaProduct, { id: 1, name: "Widget", metadata: { color: "red", size: "large" } });
+
+    expect(orm.find(MetaProduct, { metadata: { color: "red", size: "small" } })).toHaveLength(0);
+    expect(orm.find(MetaProduct, { metadata: { color: "red" } })).toHaveLength(0);
+    expect(orm.find(MetaProduct, { metadata: { color: "red", size: "large", extra: "x" } })).toHaveLength(0);
+  });
+
+  test("matches nested objects order-insensitively", () => {
+    const orm = new MiniORM();
+
+    orm.create(MetaProduct, { id: 1, name: "Widget", metadata: { dims: { w: 10, h: 20 } } });
+
+    expect(orm.find(MetaProduct, { metadata: { dims: { h: 20, w: 10 } } })).toHaveLength(1);
+    expect(orm.find(MetaProduct, { metadata: { dims: { h: 20, w: 99 } } })).toHaveLength(0);
+  });
+
+  test("matches array values in order", () => {
+    const orm = new MiniORM();
+
+    orm.create(MetaProduct, { id: 1, name: "Widget", metadata: { tags: ["a", "b"] } });
+
+    expect(orm.find(MetaProduct, { metadata: { tags: ["a", "b"] } })).toHaveLength(1);
+    // Arrays are order-sensitive
+    expect(orm.find(MetaProduct, { metadata: { tags: ["b", "a"] } })).toHaveLength(0);
+  });
+
+  test("returns detached instances instead of internal storage references", () => {
+    const orm = new MiniORM();
+
+    const created = orm.create(User, { id: 1, name: "Alice", age: 20, active: true });
+    created.name = "Mutated";
+
+    expect(orm.findOne(User, { id: 1 })).toEqual(
+      expect.objectContaining({ name: "Alice" }),
+    );
+  });
+});
+
+});
