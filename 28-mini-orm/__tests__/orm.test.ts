@@ -2,18 +2,6 @@ import { describe, expect, test } from "bun:test";
 
 import { Column, Entity, MiniORM, PrimaryKey } from "../src/index";
 
-@Entity("products")
-class Product {
-  @PrimaryKey()
-  id!: number;
-
-  @Column()
-  name!: string;
-
-  @Column()
-  meta!: Record<string, unknown>;
-}
-
 @Entity("users")
 class User {
   @PrimaryKey()
@@ -394,62 +382,39 @@ describe("mini-orm", () => {
       expect.objectContaining({ id: "abc", name: "Alpha" }),
     );
   });
-});
 
-describe("matchesWhere — JSON.stringify footguns", () => {
-  test("object where clause requires matching key insertion order", () => {
-    // JSON.stringify({"a":1,"b":2}) !== JSON.stringify({"b":2,"a":1})
-    // so a where filter whose keys are in a different order from the stored value
-    // will not match even though the objects are semantically equal.
+  test("returns detached instances instead of internal storage references", () => {
     const orm = new MiniORM();
-    orm.create(Product, { id: 1, name: "widget", meta: { a: 1, b: 2 } });
 
-    // Same keys, same values, different insertion order — should NOT match due to
-    // JSON.stringify key-order sensitivity. This documents a known limitation.
-    const result = orm.find(Product, { meta: { b: 2, a: 1 } as Record<string, unknown> });
-    expect(result).toHaveLength(0);
-  });
+    const created = orm.create(User, { id: 1, name: "Alice", age: 20, active: true });
+    created.name = "Mutated";
 
-  test("object where clause matches when key order is identical", () => {
-    const orm = new MiniORM();
-    orm.create(Product, { id: 1, name: "widget", meta: { a: 1, b: 2 } });
-
-    const result = orm.find(Product, { meta: { a: 1, b: 2 } });
-    expect(result).toHaveLength(1);
-  });
-
-  test("undefined properties in stored object are silently dropped by JSON comparison", () => {
-    // JSON.stringify strips keys whose value is undefined. A stored object with an
-    // undefined field will compare equal to one without that field at all.
-    const orm = new MiniORM();
-    // Store { tag: undefined, count: 5 } — JSON.stringify drops 'tag'
-    orm.create(Product, { id: 1, name: "widget", meta: { tag: undefined, count: 5 } });
-
-    // Querying without 'tag' matches because both stringify to {"count":5}
-    const result = orm.find(Product, { meta: { count: 5 } });
-    expect(result).toHaveLength(1);
+    expect(orm.findOne(User, { id: 1 })).toEqual(
+      expect.objectContaining({ name: "Alice" }),
+    );
   });
 });
+
 
 describe("cloneValue — isolation from stored data", () => {
   test("mutating a nested object returned by find does not corrupt the store", () => {
     const orm = new MiniORM();
-    orm.create(Product, { id: 1, name: "widget", meta: { count: 0 } });
+    orm.create(MetaProduct, { id: 1, name: "widget", metadata: { count: 0 } });
 
-    const [found] = orm.find(Product);
-    (found.meta as Record<string, unknown>).count = 99;
+    const [found] = orm.find(MetaProduct);
+    (found.metadata as Record<string, unknown>).count = 99;
 
-    const [refetched] = orm.find(Product);
+    const [refetched] = orm.find(MetaProduct);
     expect(refetched.meta).toEqual({ count: 0 });
   });
 
   test("mutating a nested object returned by create does not corrupt the store", () => {
     const orm = new MiniORM();
-    const created = orm.create(Product, { id: 1, name: "widget", meta: { count: 0 } });
-    (created.meta as Record<string, unknown>).count = 99;
+    const created = orm.create(MetaProduct, { id: 1, name: "widget", metadata: { count: 0 } });
+    (created.metadata as Record<string, unknown>).count = 99;
 
-    const stored = orm.findOne(Product, { id: 1 });
-    expect(stored?.meta).toEqual({ count: 0 });
+    const stored = orm.findOne(MetaProduct, { id: 1 });
+    expect(stored?.metadata).toEqual({ count: 0 });
   });
 });
 
@@ -630,17 +595,4 @@ describe("matchesWhere — property order insensitivity", () => {
     // Arrays are order-sensitive
     expect(orm.find(MetaProduct, { metadata: { tags: ["b", "a"] } })).toHaveLength(0);
   });
-
-  test("returns detached instances instead of internal storage references", () => {
-    const orm = new MiniORM();
-
-    const created = orm.create(User, { id: 1, name: "Alice", age: 20, active: true });
-    created.name = "Mutated";
-
-    expect(orm.findOne(User, { id: 1 })).toEqual(
-      expect.objectContaining({ name: "Alice" }),
-    );
-  });
-});
-
 });
