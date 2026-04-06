@@ -167,7 +167,9 @@ export function parser(tokens: Token[]): LispProgram {
   let current = 0;
 
   function walk(): LispNode {
-    let token = tokens[current];
+    const token = tokens[current];
+
+    if (!token) throw new SyntaxError("Unexpected end of input");
 
     if (token.type === "number") {
       current++;
@@ -181,28 +183,29 @@ export function parser(tokens: Token[]): LispProgram {
 
     if (token.type === "paren" && token.value === "(") {
       current++; // skip `(`
-      token = tokens[current];
 
-      if (token.type !== "name") {
+      const nameToken = tokens[current];
+      if (!nameToken) throw new SyntaxError("Unexpected end of input after '('");
+
+      if (nameToken.type !== "name") {
         throw new SyntaxError(
-          `Expected function name after '(', got: ${token.type} "${token.value}"`
+          `Expected function name after '(', got: ${nameToken.type} "${nameToken.value}"`
         );
       }
 
       const node: CallExpression = {
         type: "CallExpression",
-        name: token.value,
+        name: nameToken.value,
         params: [],
       };
 
       current++; // skip function name
-      token = tokens[current];
 
-      while (!(token.type === "paren" && token.value === ")")) {
+      while (tokens[current] !== undefined && !(tokens[current].type === "paren" && tokens[current].value === ")")) {
         node.params.push(walk());
-        token = tokens[current];
-        if (!token) throw new SyntaxError("Unexpected end of input — missing ')'");
       }
+
+      if (!tokens[current]) throw new SyntaxError("Unexpected end of input — missing ')'");
 
       current++; // skip `)`
       return node;

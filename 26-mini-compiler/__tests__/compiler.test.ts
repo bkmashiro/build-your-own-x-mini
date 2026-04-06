@@ -150,6 +150,24 @@ describe("parser", () => {
     // manually remove the trailing ')' that tokenizer won't produce
     expect(() => parser(tokens)).toThrow(SyntaxError);
   });
+
+  it("throws SyntaxError (not TypeError) for incomplete expression: (add 1", () => {
+    const tokens = tokenizer("(add 1");
+    expect(() => parser(tokens)).toThrow(SyntaxError);
+    expect(() => parser(tokens)).toThrow(/Unexpected end of input/);
+  });
+
+  it("throws SyntaxError (not TypeError) for nested incomplete expression: (add (sub 2", () => {
+    const tokens = tokenizer("(add (sub 2");
+    expect(() => parser(tokens)).toThrow(SyntaxError);
+    expect(() => parser(tokens)).toThrow(/Unexpected end of input/);
+  });
+
+  it("throws SyntaxError for bare open paren: (", () => {
+    const tokens = tokenizer("(");
+    expect(() => parser(tokens)).toThrow(SyntaxError);
+    expect(() => parser(tokens)).toThrow(/Unexpected end of input/);
+  });
 });
 
 // ─────────────────────────────────────────────
