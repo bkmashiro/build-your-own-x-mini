@@ -41,6 +41,10 @@ function cloneValue<T>(value: T): T {
   if (typeof structuredClone === "function") {
     return structuredClone(value);
   }
+  // Fallback for environments without structuredClone (Node <17, older browsers).
+  // JSON.parse/stringify will throw on non-serializable values (functions, symbols,
+  // BigInt, circular references) and silently drops undefined properties.
+  // Prefer keeping structuredClone available to avoid these edge cases.
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
@@ -66,6 +70,10 @@ function matchesWhere<T extends EntityRecord>(entity: T, where?: Where<T>): bool
     }
 
     if (isPlainObject(expected) || Array.isArray(expected)) {
+      // Deep equality via JSON.stringify: key insertion order must match for objects,
+      // and non-serializable properties (functions, undefined, symbols) are dropped or
+      // throw, which can produce false positives or runtime errors. If precise deep
+      // equality is needed, replace this with a dedicated structural-equality utility.
       if (JSON.stringify(actual) !== JSON.stringify(expected)) {
         return false;
       }
