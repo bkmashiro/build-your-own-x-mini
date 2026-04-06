@@ -53,6 +53,15 @@ function cloneValue<T>(value: T): T {
   // JSON.parse/stringify will throw on non-serializable values (functions, symbols,
   // BigInt, circular references) and silently drops undefined properties.
   // Prefer keeping structuredClone available to avoid these edge cases.
+  if (value instanceof Date) {
+    return new Date(value) as T;
+  }
+  if (value instanceof Map) {
+    return new Map(value) as T;
+  }
+  if (value instanceof Set) {
+    return new Set(value) as T;
+  }
   return JSON.parse(JSON.stringify(value)) as T;
 }
 

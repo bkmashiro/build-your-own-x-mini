@@ -38,6 +38,21 @@ class Product {
   title!: string;
 }
 
+@Entity("events")
+class CalendarEvent {
+  @PrimaryKey()
+  id!: number;
+
+  @Column()
+  startDate!: Date;
+
+  @Column()
+  tags!: Set<string>;
+
+  @Column()
+  metadata!: Map<string, string>;
+}
+
 describe("mini-orm", () => {
   test("creates and finds entities", () => {
     const orm = new MiniORM();
@@ -190,5 +205,111 @@ describe("cloneValue — isolation from stored data", () => {
 
     const stored = orm.findOne(Product, { id: 1 });
     expect(stored?.meta).toEqual({ count: 0 });
+  });
+});
+
+describe("cloneValue — non-JSON-serializable field types", () => {
+  test("Date fields remain Date instances after create", () => {
+    const orm = new MiniORM();
+    const start = new Date("2024-01-15T00:00:00.000Z");
+
+    const event = orm.create(CalendarEvent, {
+      id: 1,
+      startDate: start,
+      tags: new Set(),
+      metadata: new Map(),
+    });
+
+    expect(event.startDate).toBeInstanceOf(Date);
+    expect(event.startDate.toISOString()).toBe(start.toISOString());
+  });
+
+  test("mutating a returned Date does not corrupt stored entity", () => {
+    const orm = new MiniORM();
+    const start = new Date("2024-01-15T00:00:00.000Z");
+
+    const event = orm.create(CalendarEvent, {
+      id: 1,
+      startDate: start,
+      tags: new Set(),
+      metadata: new Map(),
+    });
+
+    event.startDate.setFullYear(1999);
+
+    const stored = orm.findOne(CalendarEvent, { id: 1 });
+    expect(stored!.startDate.getFullYear()).toBe(2024);
+  });
+
+  test("Set fields remain Set instances after create", () => {
+    const orm = new MiniORM();
+
+    const event = orm.create(CalendarEvent, {
+      id: 1,
+      startDate: new Date(),
+      tags: new Set(["alpha", "beta"]),
+      metadata: new Map(),
+    });
+
+    expect(event.tags).toBeInstanceOf(Set);
+    expect(event.tags.has("alpha")).toBe(true);
+    expect(event.tags.has("beta")).toBe(true);
+  });
+
+  test("mutating a returned Set does not corrupt stored entity", () => {
+    const orm = new MiniORM();
+
+    orm.create(CalendarEvent, {
+      id: 1,
+      startDate: new Date(),
+      tags: new Set(["alpha"]),
+      metadata: new Map(),
+    });
+
+    const retrieved = orm.findOne(CalendarEvent, { id: 1 });
+    retrieved!.tags.add("injected");
+
+    const stored = orm.findOne(CalendarEvent, { id: 1 });
+    expect(stored!.tags.has("injected")).toBe(false);
+    expect(stored!.tags.size).toBe(1);
+  });
+
+  test("Map fields remain Map instances after create", () => {
+    const orm = new MiniORM();
+
+    const event = orm.create(CalendarEvent, {
+      id: 1,
+      startDate: new Date(),
+      tags: new Set(),
+      metadata: new Map([["key", "value"]]),
+    });
+
+    expect(event.metadata).toBeInstanceOf(Map);
+    expect(event.metadata.get("key")).toBe("value");
+  });
+
+  test("mutating a returned Map does not corrupt stored entity", () => {
+    const orm = new MiniORM();
+
+    orm.create(CalendarEvent, {
+      id: 1,
+      startDate: new Date(),
+      tags: new Set(),
+      metadata: new Map([["key", "original"]]),
+    });
+
+    const retrieved = orm.findOne(CalendarEvent, { id: 1 });
+    retrieved!.metadata.set("key", "mutated");
+
+    const stored = orm.findOne(CalendarEvent, { id: 1 });
+    expect(stored!.metadata.get("key")).toBe("original");
+  });
+
+  test("Set becomes empty object with JSON fallback — regression guard", () => {
+    // Verify that the JSON fallback path would silently corrupt a Set.
+    // This test documents the bug that explicit instanceof checks fix.
+    const asJSON = JSON.parse(JSON.stringify(new Set([1, 2, 3])));
+    expect(asJSON).not.toBeInstanceOf(Set);
+    expect(Object.keys(asJSON)).toHaveLength(0); // {} — data lost
   });
 });
