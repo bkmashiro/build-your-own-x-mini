@@ -149,4 +149,67 @@ describe('EventEmitter', () => {
 
     expect(received).toEqual([1]);
   });
+
+  it('should remove from listenerMap when unsubscribe function is called directly', () => {
+    interface Events {
+      data: string;
+    }
+
+    const emitter = new EventEmitter<Events>();
+    const received: string[] = [];
+
+    const unsub = emitter.on('data', (msg) => received.push(msg));
+    emitter.emit('data', 'before');
+    unsub();
+
+    // listenerMap entry must be gone — no memory leak
+    expect((emitter as unknown as { listenerMap: Map<string, unknown> }).listenerMap.size).toBe(0);
+
+    // listener must no longer fire
+    emitter.emit('data', 'after');
+    expect(received).toEqual(['before']);
+  });
+
+  it('should remove from listenerMap when off() is called', () => {
+    interface Events {
+      data: string;
+    }
+
+    const emitter = new EventEmitter<Events>();
+    const received: string[] = [];
+
+    emitter.on('data', (msg) => received.push(msg));
+    emitter.emit('data', 'before');
+    emitter.off('data');
+
+    expect((emitter as unknown as { listenerMap: Map<string, unknown> }).listenerMap.size).toBe(0);
+
+    emitter.emit('data', 'after');
+    expect(received).toEqual(['before']);
+  });
+
+  it('should not throw when off() is called for an event with no listener', () => {
+    interface Events {
+      data: string;
+    }
+
+    const emitter = new EventEmitter<Events>();
+    expect(() => emitter.off('data')).not.toThrow();
+  });
+
+  it('should be idempotent — calling unsub twice must not throw', () => {
+    interface Events {
+      tick: number;
+    }
+
+    const emitter = new EventEmitter<Events>();
+    const calls: number[] = [];
+
+    const unsub = emitter.on('tick', (n) => calls.push(n));
+    unsub();
+    unsub(); // second call must be a no-op
+    emitter.emit('tick', 1);
+
+    expect(calls).toEqual([]);
+  });
 });

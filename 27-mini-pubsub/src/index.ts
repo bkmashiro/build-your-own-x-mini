@@ -209,9 +209,16 @@ export class PubSub<T = unknown> {
  */
 export class EventEmitter<Events extends Record<string, unknown>> {
   private pubsub = new PubSub<unknown>();
+  private listenerMap = new Map<keyof Events, Unsubscribe>();
 
   on<K extends keyof Events>(event: K, listener: (data: Events[K]) => void): Unsubscribe {
-    return this.pubsub.subscribe(event as string, listener as Listener);
+    const unsub = this.pubsub.subscribe(event as string, listener as Listener);
+    this.listenerMap.set(event, unsub);
+
+    return () => {
+      unsub();
+      this.listenerMap.delete(event);
+    };
   }
 
   once<K extends keyof Events>(event: K, listener: (data: Events[K]) => void): Unsubscribe {
@@ -223,8 +230,11 @@ export class EventEmitter<Events extends Record<string, unknown>> {
   }
 
   off<K extends keyof Events>(event: K): void {
-    // Note: This is a simplified clear-all for the event
-    // A full implementation would track individual listeners
+    const unsub = this.listenerMap.get(event);
+    if (unsub) {
+      unsub();
+      this.listenerMap.delete(event);
+    }
   }
 }
 
