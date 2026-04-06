@@ -241,7 +241,7 @@ class Repository<T extends EntityRecord> {
 
     const primaryKey = this.metadata.primaryKey as keyof T;
     const id = instance[primaryKey];
-    if (id === undefined || id === null || (typeof id !== "object" && id === "")) {
+    if (id === undefined || id === null || id === "") {
       throw new Error(`Primary key ${String(primaryKey)} is required`);
     }
     if (this.rows.has(id)) {
