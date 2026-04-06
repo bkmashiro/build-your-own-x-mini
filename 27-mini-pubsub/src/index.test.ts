@@ -117,6 +117,52 @@ describe('PubSub', () => {
     const count = pubsub.publish('test', 'data');
     expect(count).toBe(2);
   });
+
+  it('should deliver to remaining listeners when one throws', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('topic', () => { throw new Error('listener A failed'); });
+    pubsub.subscribe('topic', (msg) => received.push(msg));
+
+    expect(() => pubsub.publish('topic', 'hello')).not.toThrow();
+    expect(received).toEqual(['hello']);
+  });
+
+  it('should count only successful deliveries when a listener throws', () => {
+    const pubsub = new PubSub<string>();
+
+    pubsub.subscribe('topic', () => { throw new Error('boom'); });
+    pubsub.subscribe('topic', () => {});
+
+    const count = pubsub.publish('topic', 'data');
+    expect(count).toBe(1);
+  });
+
+  it('should isolate throwing listeners in wildcard subscriptions', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('user.*', () => { throw new Error('wildcard listener failed'); });
+    pubsub.subscribe('user.*', (msg) => received.push(msg));
+
+    expect(() => pubsub.publish('user.login', 'alice')).not.toThrow();
+    expect(received).toEqual(['alice']);
+  });
+
+  it('should still unsubscribe a once listener that throws', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.once('topic', () => { throw new Error('once listener failed'); });
+    pubsub.subscribe('topic', (msg) => received.push(msg));
+
+    pubsub.publish('topic', 'first');
+    pubsub.publish('topic', 'second');
+
+    expect(received).toEqual(['first', 'second']);
+    expect(pubsub.subscriberCount('topic')).toBe(1); // once listener removed
+  });
 });
 
 describe('EventEmitter', () => {

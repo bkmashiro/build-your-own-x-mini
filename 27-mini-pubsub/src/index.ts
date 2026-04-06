@@ -90,8 +90,12 @@ export class PubSub<T = unknown> {
     if (exactSubs) {
       const toRemove: Subscription<T>[] = [];
       for (const sub of exactSubs) {
-        sub.listener(message, topic);
-        delivered++;
+        try {
+          sub.listener(message, topic);
+          delivered++;
+        } catch {
+          // Isolate listener failures so remaining subscribers still receive the message
+        }
         if (sub.once) toRemove.push(sub);
       }
       for (const sub of toRemove) {
@@ -104,8 +108,12 @@ export class PubSub<T = unknown> {
       if (this.matchWildcard(pattern, topic)) {
         const toRemove: Subscription<T>[] = [];
         for (const sub of subs) {
-          sub.listener(message, topic);
-          delivered++;
+          try {
+            sub.listener(message, topic);
+            delivered++;
+          } catch {
+            // Isolate listener failures so remaining subscribers still receive the message
+          }
           if (sub.once) toRemove.push(sub);
         }
         for (const sub of toRemove) {
