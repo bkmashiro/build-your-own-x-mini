@@ -92,8 +92,19 @@ describe("tokenizer", () => {
     expect(() => tokenizer("-")).toThrow(TypeError);
   });
 
-  it("throws on unknown characters", () => {
+  it("returns empty array for empty input", () => {
+    expect(tokenizer("")).toEqual<Token[]>([]);
+  });
+
+  it("throws TypeError for unknown characters, including the offending char in the message", () => {
     expect(() => tokenizer("@")).toThrow(TypeError);
+    expect(() => tokenizer("@")).toThrow("@");
+    expect(() => tokenizer("(add # 2)")).toThrow(TypeError);
+    expect(() => tokenizer("(add # 2)")).toThrow("#");
+  });
+
+  it("throws on unterminated string literal", () => {
+    expect(() => tokenizer('"hello')).toThrow();
   });
 
   it("returns empty array for empty string input", () => {
