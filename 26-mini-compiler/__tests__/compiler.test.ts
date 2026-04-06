@@ -150,6 +150,25 @@ describe("parser", () => {
     // manually remove the trailing ')' that tokenizer won't produce
     expect(() => parser(tokens)).toThrow(SyntaxError);
   });
+
+  it("throws SyntaxError with clear message when input ends mid-expression", () => {
+    // '(add 1' — opening paren and name present, but no args closing paren
+    const tokens = tokenizer("(add 1");
+    expect(() => parser(tokens)).toThrow(SyntaxError);
+    expect(() => parser(tokens)).toThrow(/unexpected end of input/i);
+  });
+
+  it("returns empty program for empty token list", () => {
+    // Empty input is valid — produces an empty Program body
+    expect(parser([])).toEqual<LispProgram>({ type: "Program", body: [] });
+  });
+
+  it("throws SyntaxError when '(' has no function name (truncated)", () => {
+    // Just an opening paren with nothing after
+    const tokens = tokenizer("(");
+    expect(() => parser(tokens)).toThrow(SyntaxError);
+    expect(() => parser(tokens)).toThrow(/unexpected end of input/i);
+  });
 });
 
 // ─────────────────────────────────────────────
