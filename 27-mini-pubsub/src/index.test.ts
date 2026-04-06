@@ -117,6 +117,30 @@ describe('PubSub', () => {
     const count = pubsub.publish('test', 'data');
     expect(count).toBe(2);
   });
+
+  it('should deliver to subsequent subscribers when an earlier one throws', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('topic', () => { throw new Error('listener error'); });
+    pubsub.subscribe('topic', (msg) => received.push(msg));
+
+    pubsub.publish('topic', 'hello');
+
+    expect(received).toEqual(['hello']);
+  });
+
+  it('should deliver to subsequent wildcard subscribers when an earlier one throws', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('user.*', () => { throw new Error('wildcard error'); });
+    pubsub.subscribe('user.*', (msg) => received.push(msg));
+
+    pubsub.publish('user.login', 'alice');
+
+    expect(received).toEqual(['alice']);
+  });
 });
 
 describe('EventEmitter', () => {
