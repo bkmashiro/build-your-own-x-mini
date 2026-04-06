@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { Column, Entity, MiniORM, PrimaryKey } from "../src/index";
+import { Column, Entity, MiniORM, PrimaryKey, cloneValue } from "../src/index";
 
 @Entity("events")
 class CalendarEvent {
