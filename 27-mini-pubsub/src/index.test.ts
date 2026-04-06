@@ -569,6 +569,31 @@ describe('PubSub - additional methods', () => {
       expect(pubsub.hasSubscribers('user.login')).toBe(true);
       expect(pubsub.hasSubscribers('system.start')).toBe(false);
     });
+
+    it('should return false after all subscribers unsubscribe', () => {
+      const pubsub = new PubSub();
+      const unsub1 = pubsub.subscribe('test', () => {});
+      const unsub2 = pubsub.subscribe('test', () => {});
+
+      unsub1();
+      expect(pubsub.hasSubscribers('test')).toBe(true);
+
+      unsub2();
+      expect(pubsub.hasSubscribers('test')).toBe(false);
+    });
+
+    it('should return false for an unrelated topic', () => {
+      const pubsub = new PubSub();
+      pubsub.subscribe('a', () => {});
+      expect(pubsub.hasSubscribers('b')).toBe(false);
+    });
+
+    it('should return false after a once listener fires', () => {
+      const pubsub = new PubSub<string>();
+      pubsub.once('test', () => {});
+      pubsub.publish('test', 'trigger');
+      expect(pubsub.hasSubscribers('test')).toBe(false);
+    });
   });
 
   describe('clear', () => {
@@ -630,6 +655,38 @@ describe('PubSub - additional methods', () => {
       pubsub.clearHistory();
       pubsub.publish('counter', 2);
       expect(pubsub.getHistory('counter')).toEqual([2]);
+    });
+
+    it('should prevent late subscribers from receiving cleared messages', () => {
+      const pubsub = new PubSub<string>({ maxHistory: 10 });
+      const received: string[] = [];
+
+      pubsub.publish('log', 'old1');
+      pubsub.publish('log', 'old2');
+      pubsub.clearHistory();
+
+      pubsub.replay('log', (msg) => received.push(msg));
+      expect(received).toEqual([]);
+    });
+
+    it('should clear history for all topics', () => {
+      const pubsub = new PubSub<number>({ maxHistory: 10 });
+
+      pubsub.publish('a', 1);
+      pubsub.publish('b', 2);
+      pubsub.clearHistory();
+
+      expect(pubsub.getHistory('a')).toEqual([]);
+      expect(pubsub.getHistory('b')).toEqual([]);
+    });
+
+    it('should be idempotent when called on empty history', () => {
+      const pubsub = new PubSub<string>({ maxHistory: 10 });
+
+      pubsub.clearHistory();
+      pubsub.clearHistory();
+
+      expect(pubsub.getHistory('anything')).toEqual([]);
     });
   });
 
