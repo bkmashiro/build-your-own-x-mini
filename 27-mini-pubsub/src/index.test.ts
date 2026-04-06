@@ -504,6 +504,7 @@ describe('PubSub - async listener behavior', () => {
   });
 });
 
+describe('PubSub - subscriber counting', () => {
   it('should not inflate delivery count when multiple wildcard patterns match the same topic', () => {
     const pubsub = new PubSub<string>();
     const calls: string[] = [];
@@ -683,6 +684,7 @@ describe('PubSub - additional methods', () => {
       expect(received).toEqual(['sub2']);
   });
   });
+});
 
 describe('listener exception isolation', () => {
   it('should isolate a throwing listener so subsequent listeners still receive the message', () => {
