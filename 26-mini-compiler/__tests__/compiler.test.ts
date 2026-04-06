@@ -66,6 +66,32 @@ describe("tokenizer", () => {
     ]);
   });
 
+  it("tokenizes negative integer literals", () => {
+    expect(tokenizer("-5")).toEqual<Token[]>([{ type: "number", value: "-5" }]);
+  });
+
+  it("tokenizes floating-point literals", () => {
+    expect(tokenizer("3.14")).toEqual<Token[]>([{ type: "number", value: "3.14" }]);
+  });
+
+  it("tokenizes negative floating-point literals", () => {
+    expect(tokenizer("-0.5")).toEqual<Token[]>([{ type: "number", value: "-0.5" }]);
+  });
+
+  it("tokenizes negative number inside an expression", () => {
+    expect(tokenizer("(add -3 2)")).toEqual<Token[]>([
+      { type: "paren", value: "(" },
+      { type: "name", value: "add" },
+      { type: "number", value: "-3" },
+      { type: "number", value: "2" },
+      { type: "paren", value: ")" },
+    ]);
+  });
+
+  it("does not treat a bare minus as a number", () => {
+    expect(() => tokenizer("-")).toThrow(TypeError);
+  });
+
   it("throws on unknown characters", () => {
     expect(() => tokenizer("@")).toThrow(TypeError);
   });
@@ -430,5 +456,25 @@ describe("compile (full pipeline)", () => {
   it("roundtrip: tokenize → parse → transform → generate", () => {
     const input = "(multiply (add 1 2) (subtract 10 4))";
     expect(compile(input)).toBe("multiply(add(1, 2), subtract(10, 4));");
+  });
+
+  it("compiles a negative number literal argument", () => {
+    expect(compile("(negate -5)")).toBe("negate(-5);");
+  });
+
+  it("compiles an expression with a negative number", () => {
+    expect(compile("(add -3 2)")).toBe("add(-3, 2);");
+  });
+
+  it("compiles a floating-point argument", () => {
+    expect(compile("(multiply 3.14 2)")).toBe("multiply(3.14, 2);");
+  });
+
+  it("compiles negative float argument", () => {
+    expect(compile("(scale -0.5)")).toBe("scale(-0.5);");
+  });
+
+  it("compiles mixed negative and float arguments", () => {
+    expect(compile("(add -1.5 2.5)")).toBe("add(-1.5, 2.5);");
   });
 });
