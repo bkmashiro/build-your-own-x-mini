@@ -8,7 +8,18 @@
  * - Once listeners
  */
 
+/**
+ * A callback invoked when a message is published to a subscribed topic.
+ * @param message - The published message payload.
+ * @param topic - The exact topic the message was published on (useful when
+ *   the subscription used a wildcard pattern).
+ */
 export type Listener<T = unknown> = (message: T, topic: string) => void;
+
+/**
+ * A function that, when called, removes the associated subscription so the
+ * listener stops receiving messages.
+ */
 export type Unsubscribe = () => void;
 
 interface Subscription<T> {
@@ -160,9 +171,27 @@ export class PubSub<T = unknown> {
   }
 
   /**
-   * Match a wildcard pattern against a topic
-   * '*' matches any single segment
-   * '**' matches any number of segments
+   * Tests whether a wildcard pattern matches a concrete topic string.
+   *
+   * Topics and patterns are dot-separated segment strings (e.g. `"user.login"`).
+   * Two wildcard tokens are supported:
+   * - `*`  — matches **exactly one** segment (e.g. `"user.*"` matches
+   *   `"user.login"` but not `"user.login.extra"`).
+   * - `**` — matches **zero or more** segments from its position to the end
+   *   of the topic (e.g. `"events.**"` matches `"events"`, `"events.a"`, and
+   *   `"events.a.b.c"`). When `**` is encountered the remaining topic segments
+   *   are accepted unconditionally, so the algorithm returns `true` immediately.
+   *
+   * The algorithm walks both the pattern and topic segment arrays in lockstep,
+   * advancing one segment at a time. Literal segments must match exactly;
+   * `*` consumes one topic segment; `**` short-circuits to `true`. If the
+   * arrays are exhausted simultaneously the match succeeds.
+   *
+   * @param pattern - A dot-separated pattern string that may contain `*` or
+   *   `**` wildcard tokens.
+   * @param topic - A concrete dot-separated topic string with no wildcards.
+   * @returns `true` if every segment of `topic` is covered by `pattern`,
+   *   `false` otherwise.
    */
   private matchWildcard(pattern: string, topic: string): boolean {
     const patternParts = pattern.split('.');
