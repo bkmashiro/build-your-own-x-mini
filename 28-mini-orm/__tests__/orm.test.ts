@@ -2,18 +2,6 @@ import { describe, expect, test } from "bun:test";
 
 import { Column, Entity, MiniORM, PrimaryKey, cloneValue } from "../src/index";
 
-@Entity("events")
-class CalendarEvent {
-  @PrimaryKey()
-  id!: number;
-
-  @Column()
-  title!: string;
-
-  @Column()
-  scheduledAt!: Date;
-}
-
 @Entity("users")
 class User {
   @PrimaryKey()
@@ -27,6 +15,15 @@ class User {
 
   @Column()
   active!: boolean;
+}
+
+@Entity("tags")
+class Tag {
+  @PrimaryKey()
+  slug!: string;
+
+  @Column()
+  label!: string;
 }
 
 @Entity("products")
@@ -168,6 +165,16 @@ describe("mini-orm", () => {
     expect(orm.find(User)).toEqual([
       expect.objectContaining({ id: 1, name: "Alice" }),
     ]);
+  });
+
+  test("rejects empty-string primary key on update", () => {
+    const orm = new MiniORM();
+
+    orm.create(Tag, { slug: "ts", label: "TypeScript" });
+
+    expect(() =>
+      orm.update(Tag, { slug: "ts" }, { slug: "" }),
+    ).toThrow("Primary key slug cannot be empty");
   });
 
   test("rejects duplicate primary keys", () => {
