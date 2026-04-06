@@ -17,6 +17,18 @@ class User {
   active!: boolean;
 }
 
+@Entity("products")
+class Product {
+  @PrimaryKey()
+  id!: number;
+
+  @Column()
+  name!: string;
+
+  @Column()
+  description: string | undefined;
+}
+
 describe("mini-orm", () => {
   test("creates and finds entities", () => {
     const orm = new MiniORM();
@@ -91,6 +103,19 @@ describe("mini-orm", () => {
     expect(() =>
       orm.create(User, { id: 1, name: "Alice 2", age: 21, active: true }),
     ).toThrow("users with primary key 1 already exists");
+  });
+
+  test("preserves undefined field values instead of converting to null", () => {
+    const orm = new MiniORM();
+
+    const created = orm.create(Product, { id: 1, name: "Widget", description: undefined });
+
+    expect(created.description).toBeUndefined();
+    expect("description" in created).toBe(true);
+
+    const found = orm.findOne(Product, { id: 1 });
+    expect(found).not.toBeNull();
+    expect(found!.description).toBeUndefined();
   });
 
   test("returns detached instances instead of internal storage references", () => {
