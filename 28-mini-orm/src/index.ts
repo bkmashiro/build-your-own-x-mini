@@ -99,6 +99,23 @@ function validateEntity<T extends EntityRecord>(target: EntityTarget<T>): Entity
   return metadata;
 }
 
+/**
+ * Class decorator that registers a class as a managed entity.
+ *
+ * Must be applied before `@PrimaryKey` / `@Column` decorators are used.
+ * The optional `name` overrides the table/entity name used in error messages
+ * (defaults to the class name).
+ *
+ * @param name - Optional logical entity name (defaults to the class constructor name).
+ * @returns A class decorator that attaches entity metadata.
+ *
+ * @example
+ * \@Entity("users")
+ * class User {
+ *   \@PrimaryKey() id!: number;
+ *   \@Column()     name!: string;
+ * }
+ */
 export function Entity(name?: string) {
   return function <T extends Function>(target: T): void {
     const metadata = ensureMetadata(target);
@@ -106,6 +123,22 @@ export function Entity(name?: string) {
   };
 }
 
+/**
+ * Property decorator that marks a class field as a mapped column.
+ *
+ * The property must also belong to a class decorated with `@Entity`.
+ * A column is **not** the primary key; use `@PrimaryKey` for that.
+ *
+ * @returns A property decorator that registers the field in the entity's column map.
+ *
+ * @example
+ * \@Entity()
+ * class Product {
+ *   \@PrimaryKey() id!: string;
+ *   \@Column()     name!: string;
+ *   \@Column()     price!: number;
+ * }
+ */
 export function Column() {
   return function (target: object, propertyKey: string): void {
     const metadata = ensureMetadata((target as { constructor: Function }).constructor);
@@ -117,6 +150,23 @@ export function Column() {
   };
 }
 
+/**
+ * Property decorator that designates a field as the entity's primary key.
+ *
+ * Each entity class must have exactly one `@PrimaryKey` field. The value
+ * is used as the storage key and must be non-null/non-empty at create time.
+ * Changing a primary key via `update` is supported as long as the new value
+ * does not collide with an existing row.
+ *
+ * @returns A property decorator that registers the field as the primary key column.
+ *
+ * @example
+ * \@Entity()
+ * class User {
+ *   \@PrimaryKey() id!: number;
+ *   \@Column()     email!: string;
+ * }
+ */
 export function PrimaryKey() {
   return function (target: object, propertyKey: string): void {
     const metadata = ensureMetadata((target as { constructor: Function }).constructor);
@@ -230,9 +280,39 @@ class Repository<T extends EntityRecord> {
   }
 }
 
+/**
+ * In-memory ORM for entities decorated with `@Entity`, `@PrimaryKey`, and `@Column`.
+ *
+ * Each `MiniORM` instance maintains its own isolated table store. Entities are
+ * hydrated into class instances on every read so mutations to returned objects
+ * do not affect stored state.
+ *
+ * @example
+ * const orm = new MiniORM();
+ *
+ * \@Entity()
+ * class User {
+ *   \@PrimaryKey() id!: number;
+ *   \@Column()     name!: string;
+ * }
+ *
+ * orm.create(User, { id: 1, name: "Alice" });
+ * orm.find(User); // → [User { id: 1, name: "Alice" }]
+ */
 export class MiniORM {
   private readonly tables = new Map<Function, Map<unknown, EntityRecord>>();
 
+  /**
+   * Returns a `Repository` for the given entity class, creating an empty table if needed.
+   *
+   * @param target - The entity class (must be decorated with `@Entity` and `@PrimaryKey`).
+   * @returns A `Repository<T>` scoped to this ORM instance.
+   * @throws {Error} When `target` has no entity metadata or is missing a primary key.
+   *
+   * @example
+   * const repo = orm.getRepository(User);
+   * repo.create({ id: 1, name: "Alice" });
+   */
   getRepository<T extends EntityRecord>(target: EntityTarget<T>): Repository<T> {
     const metadata = validateEntity(target);
     let rows = this.tables.get(target);
@@ -243,18 +323,74 @@ export class MiniORM {
     return new Repository(target, metadata, rows as Map<unknown, T>);
   }
 
+  /**
+   * Returns all entities of the given type that satisfy the optional filter.
+   *
+   * Each value in `where` can be a literal (strict equality) or a predicate function.
+   * Omitting `where` returns every stored entity.
+   *
+   * @param target - The entity class to query.
+   * @param where - Optional filter: property → literal value or `(value, entity) => boolean`.
+   * @returns A new array of hydrated entity instances (mutations do not affect the store).
+   *
+   * @example
+   * orm.find(User, { name: "Alice" });
+   * orm.find(User, { age: (age) => age >= 18 });
+   */
   find<T extends EntityRecord>(target: EntityTarget<T>, where?: Where<T>): T[] {
     return this.getRepository(target).find(where);
   }
 
+  /**
+   * Returns the first entity that satisfies the filter, or `null` if none matches.
+   *
+   * @param target - The entity class to query.
+   * @param where - Filter: property → literal value or predicate function.
+   * @returns A hydrated entity instance or `null`.
+   *
+   * @example
+   * const user = orm.findOne(User, { id: 1 });
+   * if (user) console.log(user.name);
+   */
   findOne<T extends EntityRecord>(target: EntityTarget<T>, where: Where<T>): T | null {
     return this.getRepository(target).findOne(where);
   }
 
+  /**
+   * Creates and stores a new entity from the given input.
+   *
+   * Only fields declared with `@Column` or `@PrimaryKey` are persisted.
+   * The primary key must be present and non-empty, and must not duplicate an existing row.
+   *
+   * @param target - The entity class to instantiate.
+   * @param input - Partial field values; must include the primary key.
+   * @returns A hydrated instance of the newly created entity.
+   * @throws {Error} When the primary key is missing, empty, or already exists.
+   *
+   * @example
+   * const user = orm.create(User, { id: 1, name: "Alice" });
+   * // → User { id: 1, name: "Alice" }
+   */
   create<T extends EntityRecord>(target: EntityTarget<T>, input: CreateInput<T>): T {
     return this.getRepository(target).create(input);
   }
 
+  /**
+   * Updates all entities matching `where` with the fields in `input`.
+   *
+   * Only `@Column` / `@PrimaryKey` fields are updated. If the primary key
+   * is changed, the row is re-keyed; the new key must not collide with another row.
+   *
+   * @param target - The entity class to update.
+   * @param where - Filter identifying rows to update.
+   * @param input - Partial fields to overwrite.
+   * @returns Array of hydrated updated instances.
+   * @throws {Error} When the resulting primary key is null/undefined or collides with an existing row.
+   *
+   * @example
+   * orm.update(User, { id: 1 }, { name: "Bob" });
+   * // → [User { id: 1, name: "Bob" }]
+   */
   update<T extends EntityRecord>(
     target: EntityTarget<T>,
     where: Where<T>,
@@ -263,6 +399,18 @@ export class MiniORM {
     return this.getRepository(target).update(where, input);
   }
 
+  /**
+   * Deletes all entities matching `where` and returns the count removed.
+   *
+   * @param target - The entity class to delete from.
+   * @param where - Filter identifying rows to delete.
+   * @returns The number of rows deleted (0 if no rows matched).
+   *
+   * @example
+   * orm.create(User, { id: 1, name: "Alice" });
+   * orm.delete(User, { id: 1 }); // → 1
+   * orm.find(User);              // → []
+   */
   delete<T extends EntityRecord>(target: EntityTarget<T>, where: Where<T>): number {
     return this.getRepository(target).delete(where);
   }

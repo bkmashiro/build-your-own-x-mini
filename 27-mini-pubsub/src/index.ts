@@ -27,15 +27,44 @@ export class PubSub<T = unknown> {
   }
 
   /**
-   * Subscribe to a topic
-   * Supports wildcards: 'user.*' matches 'user.login', 'user.logout'
+   * Subscribe to a topic, with optional wildcard matching.
+   *
+   * Wildcard semantics (dot-separated segments):
+   * - `*`  — matches exactly **one** segment: `user.*` matches `user.login` but not `user.login.ok`.
+   * - `**` — matches **any number** of remaining segments: `user.**` matches `user.login`, `user.login.ok`, etc.
+   *
+   * @param topic - Exact topic name or wildcard pattern (e.g. `"user.*"`, `"events.**"`).
+   * @param listener - Callback invoked with `(message, topic)` on each matching publish.
+   * @returns An `Unsubscribe` function; call it to remove this subscription.
+   *
+   * @example
+   * const unsub = pubsub.subscribe("user.login", (msg, topic) => {
+   *   console.log(topic, msg);
+   * });
+   * pubsub.publish("user.login", { userId: 1 }); // listener fires
+   * unsub(); // listener removed
+   *
+   * // Wildcard
+   * pubsub.subscribe("user.*", listener);      // matches user.login, user.logout
+   * pubsub.subscribe("metrics.**", listener);  // matches metrics.cpu, metrics.cpu.core0
    */
   subscribe(topic: string, listener: Listener<T>): Unsubscribe {
     return this._subscribe(topic, listener, false);
   }
 
   /**
-   * Subscribe once - automatically unsubscribe after first message
+   * Subscribe to a topic for exactly one message, then automatically unsubscribe.
+   *
+   * Supports the same wildcard patterns as `subscribe` (`*` and `**`).
+   *
+   * @param topic - Exact topic name or wildcard pattern.
+   * @param listener - Callback invoked once with `(message, topic)`.
+   * @returns An `Unsubscribe` function to cancel before the message arrives.
+   *
+   * @example
+   * pubsub.once("app.ready", () => console.log("ready!"));
+   * pubsub.publish("app.ready", null); // fires once
+   * pubsub.publish("app.ready", null); // no-op — already unsubscribed
    */
   once(topic: string, listener: Listener<T>): Unsubscribe {
     return this._subscribe(topic, listener, true);
@@ -68,7 +97,20 @@ export class PubSub<T = unknown> {
   }
 
   /**
-   * Publish a message to a topic
+   * Publish a message to a topic.
+   *
+   * Delivers to all exact-match subscribers first, then to all wildcard subscribers
+   * whose pattern matches the topic. Once-listeners are removed after delivery.
+   * If `maxHistory > 0`, the message is appended to the topic's history buffer.
+   *
+   * @param topic - The exact topic name to publish to (no wildcards).
+   * @param message - The message payload to deliver.
+   * @returns The total number of listeners that received the message.
+   *
+   * @example
+   * const pubsub = new PubSub<string>({ maxHistory: 5 });
+   * pubsub.subscribe("chat", (msg) => console.log(msg));
+   * const count = pubsub.publish("chat", "hello"); // → 1
    */
   publish(topic: string, message: T): number {
     let delivered = 0;
@@ -148,14 +190,44 @@ export class PubSub<T = unknown> {
   }
 
   /**
-   * Get message history for a topic
+   * Returns the stored message history for an exact topic.
+   *
+   * History is only kept when `maxHistory > 0` was set in the constructor.
+   * The buffer is capped at `maxHistory` entries (oldest dropped first).
+   *
+   * @param topic - The exact topic name.
+   * @returns An array of past messages (oldest first), or `[]` if none recorded.
+   *
+   * @example
+   * const pubsub = new PubSub<number>({ maxHistory: 3 });
+   * pubsub.publish("score", 1);
+   * pubsub.publish("score", 2);
+   * pubsub.getHistory("score"); // → [1, 2]
    */
   getHistory(topic: string): T[] {
     return this.history.get(topic) ?? [];
   }
 
   /**
-   * Replay history to a new subscriber
+   * Replays stored history to a listener, then subscribes it for future messages.
+   *
+   * Useful for late joiners: the listener receives all previously published messages
+   * (up to `maxHistory`) synchronously before being registered for new ones.
+   *
+   * @param topic - The exact topic name to replay and subscribe to.
+   * @param listener - Callback invoked with each historical message, then with new ones.
+   * @returns An `Unsubscribe` function that cancels the ongoing subscription.
+   *
+   * @example
+   * const pubsub = new PubSub<string>({ maxHistory: 10 });
+   * pubsub.publish("log", "first");
+   * pubsub.publish("log", "second");
+   *
+   * // Late joiner gets both past messages immediately, then stays subscribed
+   * const unsub = pubsub.replay("log", (msg) => console.log(msg));
+   * // logs "first", "second" synchronously
+   * pubsub.publish("log", "third"); // logs "third" via live subscription
+   * unsub();
    */
   replay(topic: string, listener: Listener<T>): Unsubscribe {
     const history = this.getHistory(topic);
@@ -166,7 +238,15 @@ export class PubSub<T = unknown> {
   }
 
   /**
-   * Get subscriber count for a topic
+   * Returns the total number of active subscribers for a topic, including wildcard matches.
+   *
+   * @param topic - The exact topic name to count subscribers for.
+   * @returns The number of listeners (exact + all matching wildcard patterns).
+   *
+   * @example
+   * pubsub.subscribe("user.login", listenerA);
+   * pubsub.subscribe("user.*", listenerB);
+   * pubsub.subscriberCount("user.login"); // → 2
    */
   subscriberCount(topic: string): number {
     let count = this.subscriptions.get(topic)?.size ?? 0;
@@ -182,14 +262,27 @@ export class PubSub<T = unknown> {
   }
 
   /**
-   * Check if topic has subscribers
+   * Returns `true` if at least one subscriber (exact or wildcard) is listening on the topic.
+   *
+   * @param topic - The exact topic name to check.
+   * @returns `true` when `subscriberCount(topic) > 0`, otherwise `false`.
+   *
+   * @example
+   * pubsub.hasSubscribers("user.login"); // → false
+   * pubsub.subscribe("user.login", listener);
+   * pubsub.hasSubscribers("user.login"); // → true
    */
   hasSubscribers(topic: string): boolean {
     return this.subscriberCount(topic) > 0;
   }
 
   /**
-   * Clear all subscriptions
+   * Removes all exact and wildcard subscriptions. Does not clear message history.
+   *
+   * @example
+   * pubsub.subscribe("a", listener);
+   * pubsub.clear();
+   * pubsub.hasSubscribers("a"); // → false
    */
   clear(): void {
     this.subscriptions.clear();
@@ -197,7 +290,12 @@ export class PubSub<T = unknown> {
   }
 
   /**
-   * Clear history
+   * Clears all stored message history across every topic. Does not affect subscriptions.
+   *
+   * @example
+   * pubsub.publish("log", "msg");
+   * pubsub.clearHistory();
+   * pubsub.getHistory("log"); // → []
    */
   clearHistory(): void {
     this.history.clear();
