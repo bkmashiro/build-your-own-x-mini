@@ -218,6 +218,16 @@ describe('PubSub', () => {
     expect(received).toEqual([]);
   });
 
+  it('should not match partial prefix — user.login must not trigger user.loginAttempt subscriber', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('user.login', (msg) => received.push(msg));
+    pubsub.publish('user.loginAttempt', 'eve');
+
+    expect(received).toEqual([]);
+  });
+
   it('replay() on a topic with no history subscribes without calling the handler', () => {
     const pubsub = new PubSub<string>({ maxHistory: 10 });
     const received: string[] = [];
@@ -237,6 +247,45 @@ describe('PubSub', () => {
 
     expect(firstCount).toBe(1);
     expect(secondCount).toBe(0);
+  });
+
+  it('should not double-deliver when subscribed via both exact and wildcard patterns', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('user.login', (msg) => received.push(msg));
+    pubsub.subscribe('user.*', (msg) => received.push(msg));
+    pubsub.publish('user.login', 'alice');
+
+    expect(received).toEqual(['alice', 'alice']); // two distinct subscriptions, each fires once
+  });
+
+  it('should match ** greedily across multiple segments like a.b.c.d', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('a.**', (msg) => received.push(msg));
+    pubsub.publish('a.b.c.d', 'deep');
+    pubsub.publish('a.b', 'shallow');
+    pubsub.publish('z.b.c.d', 'other');
+
+    expect(received).toEqual(['deep', 'shallow']);
+  });
+
+  it('replay() should not trigger once() subscribers more than once', () => {
+    const pubsub = new PubSub<string>({ maxHistory: 10 });
+    const received: string[] = [];
+
+    pubsub.publish('log', 'past');
+
+    // once() on a topic with history — replay delivers 'past', which counts as the one delivery
+    pubsub.once('log', (msg) => received.push(msg));
+    pubsub.replay('log', (msg) => received.push(`replay:${msg}`));
+    pubsub.publish('log', 'future');
+
+    // replay delivers history synchronously ('replay:past'), then subscribes
+    // publish('future'): once fires first (exact subs), then replay's ongoing sub fires
+    expect(received).toEqual(['replay:past', 'future', 'replay:future']);
   });
 });
 
