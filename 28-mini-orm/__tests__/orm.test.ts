@@ -53,6 +53,18 @@ class CalendarEvent {
   metadata!: Map<string, string>;
 }
 
+@Entity("readings")
+class Reading {
+  @PrimaryKey()
+  id!: number;
+
+  @Column()
+  value!: number | undefined;
+
+  @Column()
+  label!: string | undefined;
+}
+
 describe("mini-orm", () => {
   test("creates and finds entities", () => {
     const orm = new MiniORM();
@@ -137,6 +149,46 @@ describe("mini-orm", () => {
     expect(() =>
       orm.update(Product, { slug: "widget" }, { slug: "" }),
     ).toThrow("Primary key slug cannot be empty");
+  });
+
+  test("round-trip fidelity for all primitive types", () => {
+    const orm = new MiniORM();
+
+    orm.create(User, { id: 1, name: "Alice", age: 20, active: true });
+    orm.create(User, { id: 2, name: "Bob", age: 0, active: false });
+
+    const alice = orm.findOne(User, { id: 1 })!;
+    expect(alice.id).toBe(1);
+    expect(alice.name).toBe("Alice");
+    expect(alice.age).toBe(20);
+    expect(alice.active).toBe(true);
+
+    const bob = orm.findOne(User, { id: 2 })!;
+    expect(bob.age).toBe(0);
+    expect(bob.active).toBe(false);
+  });
+
+  test("preserves undefined fields on round-trip (not silently dropped)", () => {
+    const orm = new MiniORM();
+
+    orm.create(Reading, { id: 1, value: undefined, label: "test" });
+
+    const reading = orm.findOne(Reading, { id: 1 })!;
+    expect(reading).not.toBeNull();
+    // undefined should be preserved, not silently dropped
+    expect("value" in reading).toBe(true);
+    expect(reading.value).toBeUndefined();
+  });
+
+  test("preserves NaN numeric fields on round-trip (not corrupted to null)", () => {
+    const orm = new MiniORM();
+
+    orm.create(Reading, { id: 2, value: NaN, label: "sensor-error" });
+
+    const reading = orm.findOne(Reading, { id: 2 })!;
+    expect(reading).not.toBeNull();
+    // NaN should be preserved, not silently corrupted to null
+    expect(reading.value).toBeNaN();
   });
 
   test("returns detached instances instead of internal storage references", () => {
