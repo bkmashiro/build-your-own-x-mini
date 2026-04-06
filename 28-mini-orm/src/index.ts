@@ -78,10 +78,43 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function deepEqual(a: unknown, b: unknown, seen = new Set<unknown>()): boolean {
+  if (Object.is(a, b)) return true;
+  if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();
+  if (a instanceof Map && b instanceof Map) {
+    if (a.size !== b.size) return false;
+    for (const [key, value] of a) {
+      if (!b.has(key) || !deepEqual(value, b.get(key), seen)) return false;
+    }
+    return true;
+  }
+  if (a instanceof Set && b instanceof Set) {
+    if (a.size !== b.size) return false;
+    for (const value of a) {
+      if (!b.has(value)) return false;
+    }
+    return true;
+  }
+  if (typeof a !== "object" || typeof b !== "object") return false;
+  if (a === null || b === null) return false;
+  if (seen.has(a)) return true;
+  seen.add(a);
+  const aKeys = Object.keys(a as object);
+  const bKeys = Object.keys(b as object);
+  if (aKeys.length !== bKeys.length) return false;
+  return aKeys.every((key) =>
+    deepEqual(
+      (a as Record<string, unknown>)[key],
+      (b as Record<string, unknown>)[key],
+      seen,
+    ),
+  );
+}
+
 /**
  * Returns true if `entity` satisfies every constraint in `where`.
  * A missing `where` always matches; function values are called as predicates;
- * objects and arrays are compared by JSON serialisation; primitives use strict equality.
+ * objects and arrays are compared by structural deep equality; primitives use strict equality.
  */
 function matchesWhere<T extends EntityRecord>(entity: T, where?: Where<T>): boolean {
   if (!where) {
@@ -101,11 +134,7 @@ function matchesWhere<T extends EntityRecord>(entity: T, where?: Where<T>): bool
     }
 
     if (isPlainObject(expected) || Array.isArray(expected)) {
-      // Deep equality via JSON.stringify: key insertion order must match for objects,
-      // and non-serializable properties (functions, undefined, symbols) are dropped or
-      // throw, which can produce false positives or runtime errors. If precise deep
-      // equality is needed, replace this with a dedicated structural-equality utility.
-      if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+      if (!deepEqual(actual, expected)) {
         return false;
       }
       continue;
