@@ -119,6 +119,28 @@ describe('PubSub', () => {
     expect(pubsub.subscriberCount('system.start')).toBe(0);
   });
 
+  it('should not double-count a listener subscribed to both exact topic and matching wildcard', () => {
+    const pubsub = new PubSub();
+    const listener = () => {};
+
+    pubsub.subscribe('test', listener);
+    pubsub.subscribe('*', listener);
+
+    expect(pubsub.subscriberCount('test')).toBe(1);
+  });
+
+  it('should count distinct listeners even when wildcard matches multiple patterns', () => {
+    const pubsub = new PubSub();
+    const shared = () => {};
+    const exclusive = () => {};
+
+    pubsub.subscribe('test', shared);
+    pubsub.subscribe('*', shared);
+    pubsub.subscribe('*', exclusive);
+
+    expect(pubsub.subscriberCount('test')).toBe(2);
+  });
+
   it('should return delivery count', () => {
     const pubsub = new PubSub();
 
