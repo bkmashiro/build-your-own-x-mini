@@ -275,6 +275,121 @@ describe('matchWildcard edge cases', () => {
   });
 });
 
+describe('PubSub - history replay boundaries', () => {
+  it('exact-topic replay delivers all history before subscribing', () => {
+    const pubsub = new PubSub<string>({ maxHistory: 10 });
+    const received: string[] = [];
+
+    pubsub.publish('orders', 'a');
+    pubsub.publish('orders', 'b');
+
+    pubsub.replay('orders', (msg) => received.push(msg));
+    pubsub.publish('orders', 'c');
+
+    expect(received).toEqual(['a', 'b', 'c']);
+  });
+
+  it('exact-topic replay respects maxHistory cap', () => {
+    const pubsub = new PubSub<number>({ maxHistory: 2 });
+    const received: number[] = [];
+
+    pubsub.publish('n', 1);
+    pubsub.publish('n', 2);
+    pubsub.publish('n', 3); // evicts 1
+
+    pubsub.replay('n', (msg) => received.push(msg));
+
+    expect(received).toEqual([2, 3]);
+  });
+
+  it('exact-topic replay returns nothing when maxHistory is 0 (default)', () => {
+    const pubsub = new PubSub<string>(); // maxHistory defaults to 0
+    const received: string[] = [];
+
+    pubsub.publish('log', 'old');
+    pubsub.replay('log', (msg) => received.push(msg));
+
+    expect(received).toEqual([]);
+  });
+
+  // LIMITATION: wildcard patterns are stored in wildcardSubs but history is
+  // keyed by exact topic. replay() calls getHistory(topic) with the literal
+  // pattern string, which never matches any stored key, so no history is
+  // replayed. Wildcards are future-only subscriptions after replay().
+  it('wildcard single-segment (*) does NOT replay history — limitation', () => {
+    const pubsub = new PubSub<string>({ maxHistory: 10 });
+    const received: string[] = [];
+
+    pubsub.publish('orders.created', 'order-1');
+    pubsub.publish('orders.updated', 'order-2');
+
+    pubsub.replay('orders.*', (msg) => received.push(msg));
+    pubsub.publish('orders.created', 'order-3'); // received via wildcard sub
+
+    // History for 'orders.created' and 'orders.updated' is NOT replayed
+    // because replay() looks up history by the literal pattern 'orders.*'
+    expect(received).toEqual(['order-3']);
+  });
+
+  it('wildcard double-segment (**) does NOT replay history — limitation', () => {
+    const pubsub = new PubSub<string>({ maxHistory: 10 });
+    const received: string[] = [];
+
+    pubsub.publish('events.user.login', 'alice');
+    pubsub.publish('events.system.boot', 'srv1');
+
+    pubsub.replay('events.**', (msg) => received.push(msg));
+    pubsub.publish('events.user.logout', 'alice'); // received via wildcard sub
+
+    expect(received).toEqual(['alice']); // only the post-replay publish
+  });
+});
+
+describe('PubSub - async listener behavior', () => {
+  // LIMITATION: listeners are invoked synchronously and their return value is
+  // discarded. Async listeners are not awaited, so side-effects that complete
+  // after publish() returns are invisible to callers.
+  it('async listener is not awaited — fire-and-forget', async () => {
+    const pubsub = new PubSub<string>();
+    const log: string[] = [];
+
+    pubsub.subscribe('task', async (msg) => {
+      await Promise.resolve(); // microtask boundary
+      log.push(`done:${msg}`);
+    });
+
+    const count = pubsub.publish('task', 'work');
+
+    // publish() returned, but the async listener has not finished yet
+    expect(count).toBe(1);
+    expect(log).toEqual([]); // nothing written yet
+
+    await Promise.resolve(); // flush microtask queue
+    expect(log).toEqual(['done:work']); // now it's done
+  });
+
+  it('multiple async listeners all fire but none are awaited', async () => {
+    const pubsub = new PubSub<number>();
+    const results: number[] = [];
+
+    pubsub.subscribe('compute', async (n) => {
+      await Promise.resolve();
+      results.push(n * 2);
+    });
+    pubsub.subscribe('compute', async (n) => {
+      await Promise.resolve();
+      results.push(n * 3);
+    });
+
+    pubsub.publish('compute', 4);
+
+    expect(results).toEqual([]); // not yet
+
+    await Promise.resolve();
+    expect(results).toEqual([8, 12]);
+  });
+});
+
 describe('EventEmitter', () => {
   it('should emit typed events', () => {
     interface Events {
