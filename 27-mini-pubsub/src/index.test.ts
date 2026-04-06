@@ -791,4 +791,49 @@ describe('EventEmitter', () => {
 
     expect(finalReceived).toEqual(['final']);
   });
+  it('should unsubscribe the correct instance when the same listener is registered twice for the same event', () => {
+    interface Events {
+      tick: number;
+    }
+
+    const emitter = new EventEmitter<Events>();
+    const received: number[] = [];
+    const listener = (n: number) => received.push(n);
+
+    emitter.on('tick', listener);
+    emitter.on('tick', listener);
+
+    emitter.emit('tick', 1); // both subscriptions fire
+    emitter.off('tick', listener); // removes one registration
+    emitter.emit('tick', 2); // second subscription still fires
+
+    // First emit: listener called twice (two separate subscriptions)
+    // After off: one subscription removed, second emit: listener called once
+    expect(received).toEqual([1, 1, 2]);
+  });
+
+  it('should independently unsubscribe the same listener from two different events', () => {
+    interface Events {
+      foo: string;
+      bar: string;
+    }
+
+    const emitter = new EventEmitter<Events>();
+    const received: string[] = [];
+    const listener = (s: string) => received.push(s);
+
+    emitter.on('foo', listener);
+    emitter.on('bar', listener);
+
+    emitter.emit('foo', 'a');
+    emitter.emit('bar', 'b');
+
+    emitter.off('foo', listener); // only remove from 'foo'
+
+    emitter.emit('foo', 'c'); // should not reach listener
+    emitter.emit('bar', 'd'); // should still reach listener
+
+    expect(received).toEqual(['a', 'b', 'd']);
+  });
+
 });
