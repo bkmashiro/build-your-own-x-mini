@@ -149,4 +149,105 @@ describe('EventEmitter', () => {
 
     expect(received).toEqual([1]);
   });
+
+  it('off() should remove the specific listener', () => {
+    interface Events {
+      tick: number;
+    }
+
+    const emitter = new EventEmitter<Events>();
+    const received: number[] = [];
+    const listener = (n: number) => received.push(n);
+
+    emitter.on('tick', listener);
+    emitter.emit('tick', 1);
+    emitter.off('tick', listener);
+    emitter.emit('tick', 2);
+
+    expect(received).toEqual([1]);
+  });
+
+  it('off() should clean up listenerMap so re-adding the same function works as a fresh subscription', () => {
+    interface Events {
+      tick: number;
+    }
+
+    const emitter = new EventEmitter<Events>();
+    const received: number[] = [];
+    const listener = (n: number) => received.push(n);
+
+    emitter.on('tick', listener);
+    emitter.emit('tick', 1);
+    emitter.off('tick', listener);
+
+    // Re-add the same function reference — should receive events again
+    emitter.on('tick', listener);
+    emitter.emit('tick', 2);
+    emitter.off('tick', listener);
+    emitter.emit('tick', 3);
+
+    expect(received).toEqual([1, 2]);
+  });
+
+  it('off() should not throw when called with an unknown listener', () => {
+    interface Events {
+      tick: number;
+    }
+
+    const emitter = new EventEmitter<Events>();
+    const listener = (_n: number) => {};
+
+    expect(() => emitter.off('tick', listener)).not.toThrow();
+  });
+
+  it('off() should not affect other listeners on the same event', () => {
+    interface Events {
+      tick: number;
+    }
+
+    const emitter = new EventEmitter<Events>();
+    const receivedA: number[] = [];
+    const receivedB: number[] = [];
+    const listenerA = (n: number) => receivedA.push(n);
+    const listenerB = (n: number) => receivedB.push(n);
+
+    emitter.on('tick', listenerA);
+    emitter.on('tick', listenerB);
+    emitter.emit('tick', 1);
+    emitter.off('tick', listenerA);
+    emitter.emit('tick', 2);
+
+    expect(receivedA).toEqual([1]);
+    expect(receivedB).toEqual([1, 2]);
+  });
+
+  it('off() cleans up listenerMap for many add/remove cycles without unbounded growth', () => {
+    interface Events {
+      data: string;
+    }
+
+    const emitter = new EventEmitter<Events>();
+    const received: string[] = [];
+
+    for (let i = 0; i < 1000; i++) {
+      const listener = (msg: string) => received.push(msg);
+      emitter.on('data', listener);
+      emitter.off('data', listener);
+    }
+
+    // After all add/remove cycles, no listeners should remain
+    emitter.emit('data', 'after');
+    expect(received).toEqual([]);
+
+    // Internal listenerMap should have no entry for 'data'
+    // (verified indirectly: re-adding works and only fires once)
+    const finalReceived: string[] = [];
+    const finalListener = (msg: string) => finalReceived.push(msg);
+    emitter.on('data', finalListener);
+    emitter.emit('data', 'final');
+    emitter.off('data', finalListener);
+    emitter.emit('data', 'gone');
+
+    expect(finalReceived).toEqual(['final']);
+  });
 });

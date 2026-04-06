@@ -209,22 +209,44 @@ export class PubSub<T = unknown> {
  */
 export class EventEmitter<Events extends Record<string, unknown>> {
   private pubsub = new PubSub<unknown>();
+  private listenerMap = new Map<string, Map<Function, Unsubscribe>>();
 
   on<K extends keyof Events>(event: K, listener: (data: Events[K]) => void): Unsubscribe {
-    return this.pubsub.subscribe(event as string, listener as Listener);
+    const unsubscribe = this.pubsub.subscribe(event as string, listener as Listener);
+    this._trackListener(event as string, listener, unsubscribe);
+    return unsubscribe;
   }
 
   once<K extends keyof Events>(event: K, listener: (data: Events[K]) => void): Unsubscribe {
-    return this.pubsub.once(event as string, listener as Listener);
+    const unsubscribe = this.pubsub.once(event as string, listener as Listener);
+    this._trackListener(event as string, listener, unsubscribe);
+    return unsubscribe;
   }
 
   emit<K extends keyof Events>(event: K, data: Events[K]): number {
     return this.pubsub.publish(event as string, data);
   }
 
-  off<K extends keyof Events>(event: K): void {
-    // Note: This is a simplified clear-all for the event
-    // A full implementation would track individual listeners
+  off<K extends keyof Events>(event: K, listener: (data: Events[K]) => void): void {
+    const eventKey = event as string;
+    const listeners = this.listenerMap.get(eventKey);
+    if (!listeners) return;
+
+    const unsubscribe = listeners.get(listener);
+    if (!unsubscribe) return;
+
+    unsubscribe();
+    listeners.delete(listener);
+    if (listeners.size === 0) {
+      this.listenerMap.delete(eventKey);
+    }
+  }
+
+  private _trackListener(event: string, listener: Function, unsubscribe: Unsubscribe): void {
+    if (!this.listenerMap.has(event)) {
+      this.listenerMap.set(event, new Map());
+    }
+    this.listenerMap.get(event)!.set(listener, unsubscribe);
   }
 }
 
