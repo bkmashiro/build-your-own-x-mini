@@ -447,6 +447,9 @@ describe('PubSub - async listener behavior', () => {
 
     expect(calls).toEqual(['exact:alice', 'wildcard:alice']);
     expect(count).toBe(calls.length);
+  });
+});
+
 describe('PubSub - additional methods', () => {
   describe('hasSubscribers', () => {
     it('should return false when no subscribers', () => {
@@ -586,25 +589,33 @@ describe('PubSub - additional methods', () => {
       received.length = 0;
       pubsub.publish('test', 'trigger2');
       expect(received).toEqual(['sub2']);
-  describe('listener exception isolation', () => {
-    it('should propagate the exception and halt delivery to subsequent listeners', () => {
-      // The current implementation does NOT isolate listener exceptions:
-      // a throw in the first listener aborts the iteration, so later listeners
-      // registered on the same topic never execute.
-      const pubsub = new PubSub<string>();
-      const received: string[] = [];
+  });
+  });
 
-      pubsub.subscribe('test', () => {
-        throw new Error('listener error');
-      });
-      pubsub.subscribe('test', (msg) => received.push(msg));
+describe('listener exception isolation', () => {
+  it('should isolate a throwing listener so subsequent listeners still receive the message', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
 
-      expect(() => pubsub.publish('test', 'hello')).toThrow('listener error');
-      // Second listener was not reached because the first threw
-      expect(received).toEqual([]);
-    });
+    pubsub.subscribe('test', () => { throw new Error('boom'); });
+    pubsub.subscribe('test', (msg) => received.push(msg));
+
+    expect(() => pubsub.publish('test', 'hello')).not.toThrow();
+    expect(received).toEqual(['hello']);
+  });
+
+  it('should isolate throwing listeners in wildcard subscriptions', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('user.*', () => { throw new Error('wildcard boom'); });
+    pubsub.subscribe('user.*', (msg) => received.push(msg));
+
+    expect(() => pubsub.publish('user.login', 'alice')).not.toThrow();
+    expect(received).toEqual(['alice']);
   });
 });
+
 
 describe('EventEmitter', () => {
   it('should emit typed events', () => {
