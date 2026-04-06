@@ -108,6 +108,17 @@ describe('PubSub', () => {
     expect(pubsub.subscriberCount('test')).toBe(1);
   });
 
+  it('should count wildcard subscribers in subscriberCount', () => {
+    const pubsub = new PubSub<string>();
+
+    pubsub.subscribe('user.*', () => {});
+
+    expect(pubsub.subscriberCount('user.login')).toBe(1);
+    expect(pubsub.subscriberCount('user.logout')).toBe(1);
+    // Non-matching topic should not count the wildcard subscriber
+    expect(pubsub.subscriberCount('system.start')).toBe(0);
+  });
+
   it('should return delivery count', () => {
     const pubsub = new PubSub();
 
