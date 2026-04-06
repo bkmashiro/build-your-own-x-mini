@@ -69,6 +69,10 @@ describe("tokenizer", () => {
   it("throws on unknown characters", () => {
     expect(() => tokenizer("@")).toThrow(TypeError);
   });
+
+  it("handles empty string input", () => {
+    expect(tokenizer("")).toEqual<Token[]>([]);
+  });
 });
 
 // ─────────────────────────────────────────────
@@ -149,6 +153,24 @@ describe("parser", () => {
     const tokens = tokenizer("(add 1 2");
     // manually remove the trailing ')' that tokenizer won't produce
     expect(() => parser(tokens)).toThrow(SyntaxError);
+  });
+
+  it("throws a SyntaxError (not TypeError) on unterminated '('", () => {
+    // tokens[current] is undefined after consuming '(' — must be a clear SyntaxError
+    const tokens = tokenizer("(");
+    expect(() => parser(tokens)).toThrow(SyntaxError);
+    expect(() => parser(tokens)).not.toThrow(TypeError);
+  });
+
+  it("throws SyntaxError when callee position holds a number, not a name", () => {
+    // '(5 1 2)' — the token after '(' is a number, not an identifier
+    const tokens = tokenizer("(5 1 2)");
+    expect(() => parser(tokens)).toThrow(SyntaxError);
+  });
+
+  it("handles empty token list (parses '' to empty Program)", () => {
+    const ast = parser([]);
+    expect(ast).toEqual<LispProgram>({ type: "Program", body: [] });
   });
 });
 
@@ -380,5 +402,18 @@ describe("compile (full pipeline)", () => {
   it("roundtrip: tokenize → parse → transform → generate", () => {
     const input = "(multiply (add 1 2) (subtract 10 4))";
     expect(compile(input)).toBe("multiply(add(1, 2), subtract(10, 4));");
+  });
+
+  it("compiles empty string to empty output", () => {
+    expect(compile("")).toBe("");
+  });
+
+  it("throws SyntaxError (not TypeError) compiling unterminated '('", () => {
+    expect(() => compile("(")).toThrow(SyntaxError);
+    expect(() => compile("(")).not.toThrow(TypeError);
+  });
+
+  it("throws SyntaxError compiling expression with numeric callee", () => {
+    expect(() => compile("(5 1 2)")).toThrow(SyntaxError);
   });
 });

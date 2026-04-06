@@ -183,6 +183,8 @@ export function parser(tokens: Token[]): LispProgram {
       current++; // skip `(`
       token = tokens[current];
 
+      if (!token) throw new SyntaxError("Unexpected end of input after '('");
+
       if (token.type !== "name") {
         throw new SyntaxError(
           `Expected function name after '(', got: ${token.type} "${token.value}"`
