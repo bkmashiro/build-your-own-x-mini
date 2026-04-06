@@ -2,6 +2,18 @@ import { describe, expect, test } from "bun:test";
 
 import { Column, Entity, MiniORM, PrimaryKey } from "../src/index";
 
+@Entity("events")
+class CalendarEvent {
+  @PrimaryKey()
+  id!: number;
+
+  @Column()
+  title!: string;
+
+  @Column()
+  scheduledAt!: Date;
+}
+
 @Entity("users")
 class User {
   @PrimaryKey()
