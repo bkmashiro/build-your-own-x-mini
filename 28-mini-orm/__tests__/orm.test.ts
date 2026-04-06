@@ -558,3 +558,18 @@ describe("cloneValue — non-JSON-serializable field types", () => {
     expect(Object.keys(asJSON)).toHaveLength(0); // {} — data lost
   });
 });
+
+describe("cloneValue — circular references", () => {
+  test("throws a descriptive error when a column value contains circular references", () => {
+    const orm = new MiniORM();
+
+    // Build a circular object and assign it as a column value via type cast,
+    // simulating data that bypasses TypeScript type checks at runtime.
+    const circularObj: Record<string, unknown> = {};
+    circularObj.self = circularObj;
+
+    expect(() =>
+      orm.create(User, { id: 1, name: circularObj as unknown as string, age: 20, active: true }),
+    ).toThrow("Entity contains circular references");
+  });
+});

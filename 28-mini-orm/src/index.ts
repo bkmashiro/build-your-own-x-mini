@@ -41,11 +41,25 @@ function ensureMetadata(target: Function): EntityMetadata {
   return metadata;
 }
 
+function hasCircularReference(value: unknown, seen = new Set<unknown>()): boolean {
+  if (typeof value !== "object" || value === null) return false;
+  if (seen.has(value)) return true;
+  seen.add(value);
+  for (const child of Object.values(value as Record<string, unknown>)) {
+    if (hasCircularReference(child, seen)) return true;
+  }
+  seen.delete(value);
+  return false;
+}
+
 /**
  * Deep-clones a value using `structuredClone` when available, falling back to a
  * JSON round-trip for older environments. Non-serialisable values (functions, symbols) are lost in the fallback.
  */
 function cloneValue<T>(value: T): T {
+  if (hasCircularReference(value)) {
+    throw new Error("Entity contains circular references");
+  }
   if (typeof structuredClone === "function") {
     return structuredClone(value);
   }
