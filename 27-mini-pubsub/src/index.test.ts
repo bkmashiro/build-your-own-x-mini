@@ -119,6 +119,106 @@ describe('PubSub', () => {
   });
 });
 
+describe('matchWildcard edge cases', () => {
+  it('* does not match multiple segments', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('user.*', (msg) => received.push(msg));
+    pubsub.publish('user.login.extra', 'deep');
+
+    expect(received).toEqual([]);
+  });
+
+  it('** matches zero additional segments', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('events.**', (msg) => received.push(msg));
+    // "events" itself has no segment after the dot, but "events.**" split is
+    // ['events', '**'] — publishing 'events' alone ('events' split is ['events'])
+    // won't match because the pattern has 2 parts while the topic has 1.
+    pubsub.publish('events', 'root');
+    pubsub.publish('events.a', 'one');
+    pubsub.publish('events.a.b.c', 'deep');
+
+    expect(received).toEqual(['one', 'deep']);
+  });
+
+  it('** matches many nested segments', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('a.**', (msg) => received.push(msg));
+    pubsub.publish('a.b.c.d.e', 'deep');
+
+    expect(received).toEqual(['deep']);
+  });
+
+  it('exact pattern does not match longer topic', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('user.login', (msg) => received.push(msg));
+    pubsub.publish('user.login.extra', 'nope');
+
+    expect(received).toEqual([]);
+  });
+
+  it('* does not match zero segments (short topic)', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('user.*', (msg) => received.push(msg));
+    pubsub.publish('user', 'nope');
+
+    expect(received).toEqual([]);
+  });
+
+  it('wildcard once fires only on first matching publish', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.once('user.*', (msg) => received.push(msg));
+    pubsub.publish('user.login', 'first');
+    pubsub.publish('user.logout', 'second');
+
+    expect(received).toEqual(['first']);
+  });
+
+  it('unsubscribe stops wildcard delivery', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    const unsub = pubsub.subscribe('user.*', (msg) => received.push(msg));
+    pubsub.publish('user.login', 'before');
+    unsub();
+    pubsub.publish('user.logout', 'after');
+
+    expect(received).toEqual(['before']);
+  });
+
+  it('subscriberCount includes matching wildcard subs', () => {
+    const pubsub = new PubSub();
+
+    pubsub.subscribe('user.*', () => {});
+    pubsub.subscribe('user.*', () => {});
+
+    expect(pubsub.subscriberCount('user.login')).toBe(2);
+    expect(pubsub.subscriberCount('system.start')).toBe(0);
+  });
+
+  it('** pattern does not match sibling prefix', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    pubsub.subscribe('events.**', (msg) => received.push(msg));
+    pubsub.publish('other.events.login', 'nope');
+
+    expect(received).toEqual([]);
+  });
+});
+
 describe('EventEmitter', () => {
   it('should emit typed events', () => {
     interface Events {
