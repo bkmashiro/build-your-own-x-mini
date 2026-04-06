@@ -94,7 +94,7 @@ export interface CProgram {
  * Supported tokens:
  *   - Parentheses: `(` and `)`
  *   - Whitespace: skipped
- *   - Numbers: sequences of digits
+ *   - Numbers: integer or decimal, with optional leading minus (e.g. `-5`, `3.14`, `-0.5`)
  *   - Strings: double-quoted string literals
  *   - Names: sequences of word characters (function names / identifiers)
  */
@@ -118,11 +118,20 @@ export function tokenizer(input: string): Token[] {
       continue;
     }
 
-    // Numbers
-    if (/[0-9]/.test(char)) {
+    // Numbers — optional leading minus, digits, optional decimal part
+    // A bare `-` followed by a non-digit is left to fall through to the
+    // unknown-character error, keeping error reporting honest.
+    if (/[0-9]/.test(char) || (char === "-" && /[0-9]/.test(input[current + 1]))) {
       let value = "";
+      if (char === "-") value += input[current++];
       while (current < input.length && /[0-9]/.test(input[current])) {
         value += input[current++];
+      }
+      if (input[current] === "." && /[0-9]/.test(input[current + 1])) {
+        value += input[current++]; // consume '.'
+        while (current < input.length && /[0-9]/.test(input[current])) {
+          value += input[current++];
+        }
       }
       tokens.push({ type: "number", value });
       continue;
