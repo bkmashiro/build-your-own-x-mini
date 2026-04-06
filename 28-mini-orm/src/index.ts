@@ -53,6 +53,15 @@ function cloneValue<T>(value: T): T {
   // JSON.parse/stringify will throw on non-serializable values (functions, symbols,
   // BigInt, circular references) and silently drops undefined properties.
   // Prefer keeping structuredClone available to avoid these edge cases.
+  if (value === undefined) {
+    throw new Error("Cannot clone undefined: JSON fallback would silently drop this value");
+  }
+  if (typeof value === "number" && isNaN(value)) {
+    throw new Error("Cannot clone NaN: JSON fallback would corrupt this value to null");
+  }
+  if (typeof value === "symbol") {
+    throw new Error("Cannot clone Symbol: JSON fallback would silently drop this value");
+  }
   if (value instanceof Date) {
     return new Date(value) as T;
   }
