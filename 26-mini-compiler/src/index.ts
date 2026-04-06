@@ -180,7 +180,12 @@ export function tokenizer(input: string): Token[] {
       continue;
     }
 
-    throw new TypeError(`Unknown character: "${char}" at position ${current}`);
+    const start = Math.max(0, current - 5);
+    const end = Math.min(input.length, current + 5);
+    const snippet = input.slice(start, end);
+    throw new TypeError(
+      `Unexpected character '${char}' at position ${current} in: '${snippet}' (input length: ${input.length})`
+    );
   }
 
   return tokens;
