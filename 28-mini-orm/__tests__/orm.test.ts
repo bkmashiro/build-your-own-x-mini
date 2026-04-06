@@ -74,6 +74,24 @@ class StringUser {
   name!: string;
 }
 
+@Entity("log-events")
+class Event {
+  @PrimaryKey()
+  id!: number;
+
+  @Column()
+  name!: string;
+
+  @Column()
+  metadata!: Record<string, unknown>;
+
+  @Column()
+  occurredAt!: Date;
+
+  @Column()
+  tags!: string[];
+}
+
 describe("mini-orm", () => {
   test("creates and finds entities", () => {
     const orm = new MiniORM();
@@ -198,6 +216,80 @@ describe("mini-orm", () => {
     expect(reading).not.toBeNull();
     // NaN should be preserved, not silently corrupted to null
     expect(reading.value).toBeNaN();
+  });
+
+  test("matches objects with keys in different insertion order", () => {
+    const orm = new MiniORM();
+
+    orm.create(Event, {
+      id: 1,
+      name: "signup",
+      metadata: { a: 1, b: 2 },
+      occurredAt: new Date("2024-01-01"),
+      tags: [],
+    });
+
+    // {b:2,a:1} has same keys/values but different insertion order — must still match
+    const result = orm.findOne(Event, { metadata: { b: 2, a: 1 } });
+    expect(result).not.toBeNull();
+    expect(result?.name).toBe("signup");
+  });
+
+  test("does not match objects with different values", () => {
+    const orm = new MiniORM();
+
+    orm.create(Event, {
+      id: 1,
+      name: "signup",
+      metadata: { a: 1, b: 2 },
+      occurredAt: new Date("2024-01-01"),
+      tags: [],
+    });
+
+    expect(orm.findOne(Event, { metadata: { a: 1, b: 99 } })).toBeNull();
+  });
+
+  test("matches Date column values by time, not reference", () => {
+    const orm = new MiniORM();
+    const date = new Date("2024-06-15T12:00:00Z");
+
+    orm.create(Event, {
+      id: 1,
+      name: "launch",
+      metadata: {},
+      occurredAt: date,
+      tags: [],
+    });
+
+    // Different Date object, same timestamp
+    const result = orm.findOne(Event, {
+      occurredAt: new Date("2024-06-15T12:00:00Z"),
+    });
+    expect(result).not.toBeNull();
+    expect(result?.name).toBe("launch");
+
+    // Different timestamp must not match
+    expect(
+      orm.findOne(Event, { occurredAt: new Date("2024-06-15T13:00:00Z") }),
+    ).toBeNull();
+  });
+
+  test("matches nested objects recursively", () => {
+    const orm = new MiniORM();
+
+    orm.create(Event, {
+      id: 1,
+      name: "deploy",
+      metadata: { config: { region: "us-east-1", replicas: 3 } },
+      occurredAt: new Date("2024-01-01"),
+      tags: [],
+    });
+
+    const result = orm.findOne(Event, {
+      metadata: { config: { replicas: 3, region: "us-east-1" } },
+    });
+    expect(result).not.toBeNull();
+    expect(result?.name).toBe("deploy");
   });
 
   test("returns detached instances instead of internal storage references", () => {
