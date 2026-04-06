@@ -390,6 +390,149 @@ describe('PubSub - async listener behavior', () => {
   });
 });
 
+describe('PubSub - additional methods', () => {
+  describe('hasSubscribers', () => {
+    it('should return false when no subscribers', () => {
+      const pubsub = new PubSub();
+      expect(pubsub.hasSubscribers('test')).toBe(false);
+    });
+
+    it('should return true after subscribing', () => {
+      const pubsub = new PubSub();
+      pubsub.subscribe('test', () => {});
+      expect(pubsub.hasSubscribers('test')).toBe(true);
+    });
+
+    it('should return false after unsubscribing last listener', () => {
+      const pubsub = new PubSub();
+      const unsub = pubsub.subscribe('test', () => {});
+      unsub();
+      expect(pubsub.hasSubscribers('test')).toBe(false);
+    });
+
+    it('should return true when matched by wildcard subscriber', () => {
+      const pubsub = new PubSub();
+      pubsub.subscribe('user.*', () => {});
+      expect(pubsub.hasSubscribers('user.login')).toBe(true);
+      expect(pubsub.hasSubscribers('system.start')).toBe(false);
+    });
+  });
+
+  describe('clear', () => {
+    it('should remove all exact subscriptions', () => {
+      const pubsub = new PubSub();
+      pubsub.subscribe('a', () => {});
+      pubsub.subscribe('b', () => {});
+      pubsub.clear();
+      expect(pubsub.subscriberCount('a')).toBe(0);
+      expect(pubsub.subscriberCount('b')).toBe(0);
+    });
+
+    it('should remove all wildcard subscriptions', () => {
+      const pubsub = new PubSub();
+      pubsub.subscribe('user.*', () => {});
+      pubsub.clear();
+      expect(pubsub.hasSubscribers('user.login')).toBe(false);
+    });
+
+    it('should not clear history', () => {
+      const pubsub = new PubSub<number>({ maxHistory: 5 });
+      pubsub.publish('counter', 1);
+      pubsub.clear();
+      expect(pubsub.getHistory('counter')).toEqual([1]);
+    });
+
+    it('should allow new subscriptions after clear', () => {
+      const pubsub = new PubSub<string>();
+      const received: string[] = [];
+      pubsub.subscribe('test', () => {});
+      pubsub.clear();
+      pubsub.subscribe('test', (msg) => received.push(msg));
+      pubsub.publish('test', 'after-clear');
+      expect(received).toEqual(['after-clear']);
+    });
+  });
+
+  describe('clearHistory', () => {
+    it('should remove stored history', () => {
+      const pubsub = new PubSub<number>({ maxHistory: 5 });
+      pubsub.publish('counter', 1);
+      pubsub.publish('counter', 2);
+      pubsub.clearHistory();
+      expect(pubsub.getHistory('counter')).toEqual([]);
+    });
+
+    it('should not affect active subscriptions', () => {
+      const pubsub = new PubSub<string>();
+      const received: string[] = [];
+      pubsub.subscribe('test', (msg) => received.push(msg));
+      pubsub.clearHistory();
+      pubsub.publish('test', 'still-delivered');
+      expect(received).toEqual(['still-delivered']);
+    });
+
+    it('should allow history to accumulate again after clear', () => {
+      const pubsub = new PubSub<number>({ maxHistory: 3 });
+      pubsub.publish('counter', 1);
+      pubsub.clearHistory();
+      pubsub.publish('counter', 2);
+      expect(pubsub.getHistory('counter')).toEqual([2]);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle empty string topic as an exact subscription', () => {
+      const pubsub = new PubSub<string>();
+      const received: string[] = [];
+      pubsub.subscribe('', (msg) => received.push(msg));
+      pubsub.publish('', 'empty-topic');
+      pubsub.publish('other', 'not-received');
+      expect(received).toEqual(['empty-topic']);
+    });
+
+    it('should handle empty string topic with hasSubscribers', () => {
+      const pubsub = new PubSub();
+      expect(pubsub.hasSubscribers('')).toBe(false);
+      pubsub.subscribe('', () => {});
+      expect(pubsub.hasSubscribers('')).toBe(true);
+    });
+
+    it('should match ** wildcard at start of remaining pattern (stops at first **)', () => {
+      // matchWildcard returns true immediately on **, so 'a.**.b.**.c'
+      // matches any topic starting with 'a.' because ** short-circuits
+      const pubsub = new PubSub<string>();
+      const received: string[] = [];
+      pubsub.subscribe('a.**.b.**.c', (msg) => received.push(msg));
+      pubsub.publish('a.x', 'matched');        // ** at pos 1 matches rest
+      pubsub.publish('a.b.c', 'also-matched'); // ** at pos 1 matches rest
+      pubsub.publish('b.x', 'not-matched');    // first segment mismatch
+      expect(received).toEqual(['matched', 'also-matched']);
+    });
+
+    it('should allow calling off() from within an emit callback without skipping other subscribers', () => {
+      const pubsub = new PubSub<string>();
+      const received: string[] = [];
+
+      // sub1 unsubscribes itself during the emit
+      const unsub1 = pubsub.subscribe('test', () => {
+        unsub1();
+        received.push('sub1');
+      });
+      pubsub.subscribe('test', () => received.push('sub2'));
+
+      pubsub.publish('test', 'trigger');
+      // Both listeners should have fired on this publish
+      expect(received).toContain('sub1');
+      expect(received).toContain('sub2');
+
+      // sub1 should be gone on next publish
+      received.length = 0;
+      pubsub.publish('test', 'trigger2');
+      expect(received).toEqual(['sub2']);
+    });
+  });
+});
+
 describe('EventEmitter', () => {
   it('should emit typed events', () => {
     interface Events {
