@@ -92,6 +92,18 @@ class Event {
   tags!: string[];
 }
 
+@Entity("documents")
+class Document {
+  @PrimaryKey()
+  id!: number;
+
+  @Column()
+  meta!: Record<string, unknown>;
+
+  @Column()
+  tags!: string[];
+}
+
 describe("mini-orm", () => {
   test("creates and finds entities", () => {
     const orm = new MiniORM();
@@ -290,6 +302,45 @@ describe("mini-orm", () => {
     });
     expect(result).not.toBeNull();
     expect(result?.name).toBe("deploy");
+  });
+
+  test("matches object column values with function properties without crashing", () => {
+    const orm = new MiniORM();
+
+    orm.create(Document, { id: 1, meta: { type: "report" }, tags: [] });
+    orm.create(Document, { id: 2, meta: { type: "invoice" }, tags: [] });
+
+    // Function properties in the where filter are ignored; only non-function keys are compared
+    const result = orm.find(Document, { meta: { type: "report", render: () => "html" } as Record<string, unknown> });
+    expect(result).toHaveLength(1);
+    expect(result[0]!.id).toBe(1);
+  });
+
+  test("matches object column values with BigInt properties without crashing", () => {
+    const orm = new MiniORM();
+
+    orm.create(Document, { id: 1, meta: { size: BigInt(9007199254740993) }, tags: [] });
+    orm.create(Document, { id: 2, meta: { size: BigInt(42) }, tags: [] });
+
+    const result = orm.find(Document, { meta: { size: BigInt(9007199254740993) } });
+    expect(result).toHaveLength(1);
+    expect(result[0]!.id).toBe(1);
+  });
+
+  test("matches nested arrays in where clauses", () => {
+    const orm = new MiniORM();
+
+    orm.create(Document, { id: 1, meta: {}, tags: ["typescript", "orm"] });
+    orm.create(Document, { id: 2, meta: {}, tags: ["typescript"] });
+    orm.create(Document, { id: 3, meta: {}, tags: ["orm"] });
+
+    expect(orm.find(Document, { tags: ["typescript", "orm"] })).toEqual([
+      expect.objectContaining({ id: 1 }),
+    ]);
+    expect(orm.find(Document, { tags: ["typescript"] })).toEqual([
+      expect.objectContaining({ id: 2 }),
+    ]);
+    expect(orm.findOne(Document, { tags: ["missing"] })).toBeNull();
   });
 
   test("returns detached instances instead of internal storage references", () => {
