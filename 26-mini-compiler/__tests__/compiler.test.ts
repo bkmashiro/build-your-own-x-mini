@@ -69,6 +69,37 @@ describe("tokenizer", () => {
   it("throws on unknown characters", () => {
     expect(() => tokenizer("@")).toThrow(TypeError);
   });
+
+  it("returns empty array for empty string input", () => {
+    expect(tokenizer("")).toEqual<Token[]>([]);
+  });
+
+  it("throws a meaningful error on unterminated string literal", () => {
+    expect(() => tokenizer('"hello')).toThrow();
+    expect(() => tokenizer('"hello')).toThrow(/unterminated/i);
+  });
+
+  it("skips mixed whitespace (spaces, tabs, newlines) between tokens", () => {
+    expect(tokenizer("(\t add \n 2\r\n )")).toEqual<Token[]>([
+      { type: "paren", value: "(" },
+      { type: "name", value: "add" },
+      { type: "number", value: "2" },
+      { type: "paren", value: ")" },
+    ]);
+  });
+
+  it("tokenizes a number immediately followed by ( with no whitespace", () => {
+    expect(tokenizer("(add 1(2 3))")).toEqual<Token[]>([
+      { type: "paren", value: "(" },
+      { type: "name", value: "add" },
+      { type: "number", value: "1" },
+      { type: "paren", value: "(" },
+      { type: "number", value: "2" },
+      { type: "number", value: "3" },
+      { type: "paren", value: ")" },
+      { type: "paren", value: ")" },
+    ]);
+  });
 });
 
 // ─────────────────────────────────────────────
