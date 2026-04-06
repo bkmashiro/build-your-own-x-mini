@@ -390,6 +390,41 @@ describe('PubSub - async listener behavior', () => {
   });
 });
 
+  it('should not inflate delivery count when multiple wildcard patterns match the same topic', () => {
+    const pubsub = new PubSub<string>();
+    const calls: string[] = [];
+
+    // Two overlapping patterns both match 'user.login.success'
+    pubsub.subscribe('user.*.*', (msg) => calls.push(`broad:${msg}`));
+    pubsub.subscribe('user.login.*', (msg) => calls.push(`narrow:${msg}`));
+
+    const count = pubsub.publish('user.login.success', 'payload');
+
+    // Two distinct listeners were notified — count must equal actual invocations
+    expect(calls).toEqual(['broad:payload', 'narrow:payload']);
+    expect(count).toBe(calls.length);
+  });
+
+  it('should count zero deliveries when no subscribers match', () => {
+    const pubsub = new PubSub<string>();
+
+    pubsub.subscribe('user.*', () => {});
+
+    const count = pubsub.publish('order.created', 'payload');
+    expect(count).toBe(0);
+  });
+
+  it('should count exact and wildcard subscribers independently', () => {
+    const pubsub = new PubSub<string>();
+    const calls: string[] = [];
+
+    pubsub.subscribe('user.login', (msg) => calls.push(`exact:${msg}`));
+    pubsub.subscribe('user.*', (msg) => calls.push(`wildcard:${msg}`));
+
+    const count = pubsub.publish('user.login', 'alice');
+
+    expect(calls).toEqual(['exact:alice', 'wildcard:alice']);
+    expect(count).toBe(calls.length);
 describe('PubSub - additional methods', () => {
   describe('hasSubscribers', () => {
     it('should return false when no subscribers', () => {
