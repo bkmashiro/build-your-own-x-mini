@@ -278,16 +278,21 @@ export class PubSub<T = unknown> {
    * pubsub.subscriberCount("user.login"); // → 2
    */
   subscriberCount(topic: string): number {
-    let count = this.subscriptions.get(topic)?.size ?? 0;
-    
-    // Check wildcards
+    const seen = new Set<Listener<T>>();
+
+    for (const sub of this.subscriptions.get(topic) ?? []) {
+      seen.add(sub.listener);
+    }
+
     for (const [pattern, subs] of this.wildcardSubs) {
       if (this.matchWildcard(pattern, topic)) {
-        count += subs.size;
+        for (const sub of subs) {
+          seen.add(sub.listener);
+        }
       }
     }
-    
-    return count;
+
+    return seen.size;
   }
 
   /**
