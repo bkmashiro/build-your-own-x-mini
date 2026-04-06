@@ -144,10 +144,14 @@ export function tokenizer(input: string): Token[] {
 
     // String literals
     if (char === '"') {
+      const start = current;
       let value = "";
       current++; // skip opening quote
       while (current < input.length && input[current] !== '"') {
         value += input[current++];
+      }
+      if (current >= input.length) {
+        throw new SyntaxError(`Unterminated string literal starting at position ${start}`);
       }
       current++; // skip closing quote
       tokens.push({ type: "string", value });
