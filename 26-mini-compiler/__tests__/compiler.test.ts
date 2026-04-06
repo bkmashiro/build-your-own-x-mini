@@ -489,3 +489,59 @@ describe("compile (full pipeline)", () => {
     expect(compile("(add -1.5 2.5)")).toBe("add(-1.5, 2.5);");
   });
 });
+
+// ─────────────────────────────────────────────
+// Edge case tests
+// ─────────────────────────────────────────────
+
+describe("edge cases — empty / whitespace-only input", () => {
+  it("compile('') returns an empty string without throwing", () => {
+    expect(() => compile("")).not.toThrow();
+    expect(compile("")).toBe("");
+  });
+
+  it("compile('   ') returns an empty string without throwing", () => {
+    expect(() => compile("   ")).not.toThrow();
+    expect(compile("   ")).toBe("");
+  });
+
+  it("tokenizer('') returns an empty token array", () => {
+    expect(tokenizer("")).toEqual<Token[]>([]);
+  });
+
+  it("tokenizer('   ') returns an empty token array", () => {
+    expect(tokenizer("   ")).toEqual<Token[]>([]);
+  });
+});
+
+describe("edge cases — negative number literals", () => {
+  // The tokenizer regex only matches [0-9], so a leading `-` is an unknown character.
+  // Until negative literals are supported, the tokenizer must throw a clear TypeError
+  // rather than silently misparsing (e.g. treating `-` as a name fragment).
+  it("tokenizer throws TypeError on a standalone negative number", () => {
+    expect(() => tokenizer("-3")).toThrow(TypeError);
+  });
+
+  it("tokenizer throws TypeError on a negative number inside an expression", () => {
+    expect(() => tokenizer("(sub 5 -3)")).toThrow(TypeError);
+  });
+});
+
+describe("edge cases — escaped quotes in string literals", () => {
+  // The string lexer stops at the first `"` and does not handle `\"` escape sequences.
+  // Given input `(print "hello\"world")`:
+  //   - The string token is collected as `hello\` (stops at the escaped `"`)
+  //   - `world` is then tokenized as a separate name token
+  //   - The trailing `)` closes the paren
+  //   - The remaining `"` at the end opens a new, unterminated string with value `)`
+  // Net result: NO throw, but the token stream is silently wrong.
+  // This test documents the current broken behaviour so a future fix is detectable.
+  it('tokenizer silently misparses a string containing an escaped quote', () => {
+    // Should ideally throw or return [paren, name, string("hello\"world"), paren].
+    // Currently it does neither — it miserably produces extra tokens instead.
+    const tokens = tokenizer('(print "hello\\"world")');
+    // The string token value is truncated at the backslash-preceded `"`.
+    const stringToken = tokens.find((t) => t.type === "string");
+    expect(stringToken?.value).not.toBe('hello"world');
+  });
+});
