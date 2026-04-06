@@ -25,6 +25,10 @@ type UpdateInput<T extends EntityRecord> = Partial<T>;
 
 const entityMetadata = new WeakMap<Function, EntityMetadata>();
 
+/**
+ * Returns the EntityMetadata for a constructor, creating a default entry if none exists.
+ * Needed because decorators may run before the metadata map is populated.
+ */
 function ensureMetadata(target: Function): EntityMetadata {
   let metadata = entityMetadata.get(target);
   if (!metadata) {
@@ -37,6 +41,10 @@ function ensureMetadata(target: Function): EntityMetadata {
   return metadata;
 }
 
+/**
+ * Deep-clones a value using `structuredClone` when available, falling back to a
+ * JSON round-trip for older environments. Non-serialisable values (functions, symbols) are lost in the fallback.
+ */
 function cloneValue<T>(value: T): T {
   if (typeof structuredClone === "function") {
     return structuredClone(value);
@@ -52,6 +60,11 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/**
+ * Returns true if `entity` satisfies every constraint in `where`.
+ * A missing `where` always matches; function values are called as predicates;
+ * objects and arrays are compared by JSON serialisation; primitives use strict equality.
+ */
 function matchesWhere<T extends EntityRecord>(entity: T, where?: Where<T>): boolean {
   if (!where) {
     return true;
@@ -271,6 +284,7 @@ class Repository<T extends EntityRecord> {
     return count;
   }
 
+  /** Reconstructs a typed class instance from a plain stored record, cloning each column value. */
   private hydrate(entity: T): T {
     const instance = new (this.target as new () => T)();
     for (const column of this.metadata.columns.keys()) {
