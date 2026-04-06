@@ -137,6 +137,39 @@ describe("tokenizer", () => {
       { type: "paren", value: ")" },
     ]);
   });
+
+  it("error message includes the offending character and its position", () => {
+    expect(() => tokenizer("add @1 2")).toThrow(
+      /Unexpected character '@' at position 4/
+    );
+  });
+
+  it("error message includes a surrounding snippet of the input", () => {
+    const err = (() => {
+      try {
+        tokenizer("add @1 2");
+      } catch (e) {
+        return e as Error;
+      }
+    })();
+    expect(err).toBeInstanceOf(TypeError);
+    expect(err!.message).toContain("add @1");
+  });
+
+  it("error message includes the full input length", () => {
+    const input = "add @1 2";
+    expect(() => tokenizer(input)).toThrow(
+      new RegExp(`input length: ${input.length}`)
+    );
+  });
+
+  it("reports correct position when unknown character is at the start", () => {
+    expect(() => tokenizer("@foo")).toThrow(/at position 0/);
+  });
+
+  it("reports correct position when unknown character is at the end", () => {
+    expect(() => tokenizer("(add 1 2)@")).toThrow(/at position 9/);
+  });
 });
 
 // ─────────────────────────────────────────────
