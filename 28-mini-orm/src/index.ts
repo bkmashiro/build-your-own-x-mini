@@ -154,7 +154,7 @@ function matchesWhere<T extends EntityRecord>(entity: T, where?: Where<T>): bool
       continue;
     }
 
-    if (actual !== expected) {
+    if (!Object.is(actual, expected)) {
       return false;
     }
   }

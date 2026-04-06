@@ -405,6 +405,27 @@ describe("mini-orm", () => {
       expect.objectContaining({ name: "Alice" }),
     );
   });
+
+  test("where clause matches object regardless of key insertion order", () => {
+    const orm = new MiniORM();
+
+    // stored with keys in {a, b} order
+    orm.create(Item, { id: 1, meta: { a: 1, b: 2 }, count: null });
+
+    // queried with keys in {b, a} order — must still match
+    expect(orm.findOne(Item, { meta: { b: 2, a: 1 } })).toEqual(
+      expect.objectContaining({ id: 1 }),
+    );
+  });
+
+  test("where clause with NaN does not match a null column value", () => {
+    const orm = new MiniORM();
+
+    orm.create(Item, { id: 1, meta: {}, count: null });
+
+    // NaN !== null — should not match
+    expect(orm.findOne(Item, { count: NaN })).toBeNull();
+  });
 });
 
 
