@@ -97,6 +97,20 @@ export interface CProgram {
  *   - Numbers: sequences of digits
  *   - Strings: double-quoted string literals
  *   - Names: sequences of word characters (function names / identifiers)
+ *
+ * @param input - The Lisp source code string to tokenize.
+ * @returns An array of `Token` objects in the order they appear in the source.
+ * @throws {TypeError} When an unrecognized character is encountered.
+ *
+ * @example
+ * tokenize("(add 2 3)");
+ * // → [
+ * //     { type: "paren",  value: "(" },
+ * //     { type: "name",   value: "add" },
+ * //     { type: "number", value: "2" },
+ * //     { type: "number", value: "3" },
+ * //     { type: "paren",  value: ")" },
+ * //   ]
  */
 export function tokenizer(input: string): Token[] {
   const tokens: Token[] = [];
@@ -162,6 +176,15 @@ export function tokenizer(input: string): Token[] {
 
 /**
  * Parses a flat token array into a Lisp AST.
+ *
+ * @param tokens - The token array produced by `tokenizer`.
+ * @returns A `LispProgram` whose `body` contains one node per top-level expression.
+ * @throws {SyntaxError} On unexpected tokens, missing function names, or unclosed parentheses.
+ *
+ * @example
+ * const tokens = tokenizer("(add 1 2)");
+ * const ast = parse(tokens);
+ * // ast.body[0] → { type: "CallExpression", name: "add", params: [...] }
  */
 export function parser(tokens: Token[]): LispProgram {
   let current = 0;
@@ -231,6 +254,15 @@ export function parser(tokens: Token[]): LispProgram {
  *  - Program body items become ExpressionStatements
  *  - CallExpression { name, params } → CallExpression { callee: Identifier, arguments }
  *  - NumberLiteral and StringLiteral pass through unchanged
+ *
+ * @param ast - A `LispProgram` produced by `parser`.
+ * @returns A `CProgram` ready to be passed to `codeGenerator`.
+ * @throws {Error} When a top-level expression is not a `CallExpression`.
+ *
+ * @example
+ * const lispAst = parse(tokenize("(add 1 2)"));
+ * const cAst = transform(lispAst);
+ * // cAst.body[0] → { type: "ExpressionStatement", expression: { type: "CallExpression", ... } }
  */
 export function transformer(ast: LispProgram): CProgram {
   function transformNode(node: LispNode): CNode {
@@ -277,6 +309,22 @@ export function transformer(ast: LispProgram): CProgram {
 
 /**
  * Generates C-style source code from a C AST.
+ *
+ * Recursively walks the C AST and emits each node as a string:
+ * - `Program` → newline-joined statements
+ * - `ExpressionStatement` → `<expr>;`
+ * - `CallExpression` → `<callee>(<args, ...>)`
+ * - `Identifier` → the identifier name
+ * - `NumberLiteral` → the numeric string
+ * - `StringLiteral` → `"<value>"`
+ *
+ * @param node - The root `CProgram`, or any inner `CNode` / `CExpressionStatement`.
+ * @returns The emitted source code string.
+ * @throws {TypeError} When an unknown node type is encountered.
+ *
+ * @example
+ * const code = generate(transform(parse(tokenize("(add 1 2)"))));
+ * // → "add(1, 2);"
  */
 export function codeGenerator(node: CProgram | CNode | CExpressionStatement): string {
   const n = node as { type: string };
@@ -326,10 +374,20 @@ export function codeGenerator(node: CProgram | CNode | CExpressionStatement): st
 /**
  * Compiles a Lisp-style source string to C-style output.
  *
- * ```
- * (add 2 (subtract 4 2))
- * // → add(2, subtract(4, 2));
- * ```
+ * Runs the full pipeline: `tokenizer` → `parser` → `transformer` → `codeGenerator`.
+ *
+ * @param input - Lisp source code, e.g. `"(add 2 (subtract 4 2))"`.
+ * @returns The equivalent C-style code string, e.g. `"add(2, subtract(4, 2));"`.
+ * @throws {TypeError} On unrecognized characters in the source.
+ * @throws {SyntaxError} On malformed Lisp expressions.
+ * @throws {Error} When a top-level expression is not a function call.
+ *
+ * @example
+ * compile("(add 2 (subtract 4 2))");
+ * // → "add(2, subtract(4, 2));"
+ *
+ * compile('(greet "world")');
+ * // → 'greet("world");'
  */
 export function compile(input: string): string {
   const tokens = tokenizer(input);
