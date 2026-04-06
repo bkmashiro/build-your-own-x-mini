@@ -117,6 +117,51 @@ describe('PubSub', () => {
     const count = pubsub.publish('test', 'data');
     expect(count).toBe(2);
   });
+
+  it('calling unsubscribe twice is a no-op and does not throw', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    const unsub = pubsub.subscribe('test', (msg) => received.push(msg));
+    pubsub.publish('test', 'first');
+    unsub();
+    expect(() => unsub()).not.toThrow();
+    pubsub.publish('test', 'second');
+
+    expect(received).toEqual(['first']);
+  });
+
+  it('off() via returned unsubscribe removes a once() listener before it fires', () => {
+    const pubsub = new PubSub<string>();
+    const received: string[] = [];
+
+    const unsub = pubsub.once('test', (msg) => received.push(msg));
+    unsub();
+    pubsub.publish('test', 'should-not-arrive');
+
+    expect(received).toEqual([]);
+  });
+
+  it('replay() on a topic with no history subscribes without calling the handler', () => {
+    const pubsub = new PubSub<string>({ maxHistory: 10 });
+    const received: string[] = [];
+
+    pubsub.replay('empty-topic', (msg) => received.push(msg));
+
+    expect(received).toEqual([]);
+  });
+
+  it('delivery count is not incremented for once() listeners on the second publish', () => {
+    const pubsub = new PubSub<string>();
+
+    pubsub.once('test', () => {});
+
+    const firstCount = pubsub.publish('test', 'first');
+    const secondCount = pubsub.publish('test', 'second');
+
+    expect(firstCount).toBe(1);
+    expect(secondCount).toBe(0);
+  });
 });
 
 describe('EventEmitter', () => {
