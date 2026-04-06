@@ -65,6 +65,15 @@ class Reading {
   label!: string | undefined;
 }
 
+@Entity("string-users")
+class StringUser {
+  @PrimaryKey()
+  id!: string;
+
+  @Column()
+  name!: string;
+}
+
 describe("mini-orm", () => {
   test("creates and finds entities", () => {
     const orm = new MiniORM();
@@ -199,6 +208,47 @@ describe("mini-orm", () => {
 
     expect(orm.findOne(User, { id: 1 })).toEqual(
       expect.objectContaining({ name: "Alice" }),
+    );
+  });
+
+  test("saves and retrieves entity with numeric primary key 0", () => {
+    const orm = new MiniORM();
+
+    orm.create(User, { id: 0, name: "Zero", age: 99, active: true });
+
+    expect(orm.find(User)).toHaveLength(1);
+    expect(orm.findOne(User, { id: 0 })).toEqual(
+      expect.objectContaining({ id: 0, name: "Zero" }),
+    );
+  });
+
+  test("findById(0) returns correct entity, not undefined", () => {
+    const orm = new MiniORM();
+
+    orm.create(User, { id: 0, name: "Zero", age: 1, active: false });
+    orm.create(User, { id: 1, name: "One", age: 2, active: true });
+
+    const result = orm.findOne(User, { id: 0 });
+
+    expect(result).not.toBeNull();
+    expect(result).toEqual(expect.objectContaining({ id: 0, name: "Zero" }));
+  });
+
+  test("saves and retrieves entity with empty-string primary key rejected", () => {
+    const orm = new MiniORM();
+
+    expect(() =>
+      orm.create(StringUser, { id: "", name: "Empty" }),
+    ).toThrow("Primary key id is required");
+  });
+
+  test("saves and retrieves entity with non-empty string primary key", () => {
+    const orm = new MiniORM();
+
+    orm.create(StringUser, { id: "abc", name: "Alpha" });
+
+    expect(orm.findOne(StringUser, { id: "abc" })).toEqual(
+      expect.objectContaining({ id: "abc", name: "Alpha" }),
     );
   });
 });
