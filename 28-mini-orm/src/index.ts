@@ -184,7 +184,7 @@ class Repository<T extends EntityRecord> {
       }
 
       const nextId = nextEntity[primaryKey];
-      if (nextId === undefined || nextId === null) {
+      if (nextId === undefined || nextId === null || (typeof nextId !== "object" && nextId === "")) {
         throw new Error(`Primary key ${String(primaryKey)} cannot be empty`);
       }
       if (nextId !== rowId && this.rows.has(nextId)) {

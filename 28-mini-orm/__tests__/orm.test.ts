@@ -17,6 +17,15 @@ class User {
   active!: boolean;
 }
 
+@Entity("products")
+class Product {
+  @PrimaryKey()
+  slug!: string;
+
+  @Column()
+  title!: string;
+}
+
 describe("mini-orm", () => {
   test("creates and finds entities", () => {
     const orm = new MiniORM();
@@ -91,6 +100,16 @@ describe("mini-orm", () => {
     expect(() =>
       orm.create(User, { id: 1, name: "Alice 2", age: 21, active: true }),
     ).toThrow("users with primary key 1 already exists");
+  });
+
+  test("rejects empty string primary key in update()", () => {
+    const orm = new MiniORM();
+
+    orm.create(Product, { slug: "widget", title: "Widget" });
+
+    expect(() =>
+      orm.update(Product, { slug: "widget" }, { slug: "" }),
+    ).toThrow("Primary key slug cannot be empty");
   });
 
   test("returns detached instances instead of internal storage references", () => {
