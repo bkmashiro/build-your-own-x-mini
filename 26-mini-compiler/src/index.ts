@@ -152,6 +152,9 @@ export function tokenizer(input: string): Token[] {
     }
 
     // String literals
+    // TODO(owner): Escaped quotes (e.g. "hello\"world") are not supported —
+    // the loop stops at the first `"` regardless of preceding backslash.
+    // To support escape sequences, detect `\"` inside the loop and skip the backslash.
     if (char === '"') {
       const start = current;
       let value = "";
